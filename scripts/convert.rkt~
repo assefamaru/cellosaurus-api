@@ -177,7 +177,7 @@
 ;; --- "attributes.csv" ouput will contain each attribute type and attribute content
 ;;      for a cell line (referenced using accession).
 ;; --- "refs.csv" output will contain reference data for each reference identifier
-(convert "../data/txt/cellosaurus.txt" "../data/csv/cell_lines.csv" "cells")
+;(convert "../data/txt/cellosaurus.txt" "../data/csv/cell_lines.csv" "cells")
 (convert "../data/txt/cellosaurus.txt" "../data/csv/attributes.csv" "attributes")
-(convert "../data/txt/cellosaurus_refs.txt" "../data/csv/references.csv" "references")
-(convert "../data/txt/cellosaurus_xrefs.txt" "../data/csv/terminologies.csv" "terminologies")
+;(convert "../data/txt/cellosaurus_refs.txt" "../data/csv/references.csv" "references")
+;(convert "../data/txt/cellosaurus_xrefs.txt" "../data/csv/terminologies.csv" "terminologies")
