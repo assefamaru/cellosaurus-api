@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -79,7 +80,7 @@ func FindCell(c *gin.Context) {
 	var cell Cell
 	indent, _ := strconv.ParseBool(c.DefaultQuery("indent", "true"))
 
-	cell.ID = c.Param("id")
+	cell.ID = strings.TrimPrefix(c.Param("id"), "/")
 	err := cell.Find()
 	if err != nil {
 		if err == sql.ErrNoRows {
