@@ -298,7 +298,7 @@ func (cell *Cell) Find() error {
 }
 
 // Returns the total number of cell lines in db.
-func countCells() (int, error) {
+func totalCells() (int, error) {
 	db, err := Database()
 	if err != nil {
 		return -1, err
@@ -307,6 +307,116 @@ func countCells() (int, error) {
 
 	var count string
 	query := "SELECT content FROM statistics WHERE attribute = 'totalCellLines';"
+	err = db.QueryRow(query).Scan(&count)
+	if err != nil {
+		logSentry(err)
+		return -1, err
+	}
+
+	total, _ := strconv.Atoi(count)
+	return total, nil
+}
+
+type Reference struct {
+	Identifier []string `json:"identifier"`
+	Authors    []string `json:"authors,omitempty"`
+	Consortium []string `json:"group/consortium,omitempty"`
+	Title      string   `json:"title"`
+	Citation   string   `json:"citation"`
+}
+
+type References struct {
+	Meta Meta        `json:"meta"`
+	Data []Reference `json:"data"`
+}
+
+// Returns a list of paginated references.
+func (refs *References) List() error {
+	db, err := Database()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	from := getPaginationFrom(refs.Meta)
+	to := refs.Meta.PerPage
+	query := fmt.Sprintf(
+		"SELECT identifier, citation FROM refs LIMIT %d,%d;",
+		from,
+		to,
+	)
+	rows, err := db.Query(query)
+	if err != nil {
+		logSentry(err)
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			identifier string
+			ref        Reference
+		)
+		if err = rows.Scan(&identifier, &ref.Citation); err != nil {
+			logSentry(err)
+			return err
+		}
+		ref.Identifier = strings.Split(strings.TrimSuffix(identifier, ";"), "; ")
+
+		query = fmt.Sprintf(
+			"SELECT attribute, content FROM ref_attributes WHERE identifier = '%s';",
+			identifier,
+		)
+		detailRows, detailErr := db.Query(query)
+		if detailErr != nil {
+			logSentry(detailErr)
+			return detailErr
+		}
+		defer detailRows.Close()
+
+		for detailRows.Next() {
+			var (
+				attribute string
+				content   string
+			)
+			if err = detailRows.Scan(&attribute, &content); err != nil {
+				logSentry(err)
+				return err
+			}
+			switch attribute {
+			case "RA":
+				ref.Authors = append(
+					ref.Authors,
+					strings.Split(strings.TrimSuffix(content, ";"), ", ")...,
+				)
+			case "RG":
+				ref.Consortium = append(
+					ref.Consortium,
+					strings.Split(content, ";")...,
+				)
+			case "RT":
+				ref.Title = ref.Title + strings.TrimSuffix(
+					strings.TrimPrefix(content, "\""), "\";",
+				)
+			}
+		}
+
+		refs.Data = append(refs.Data, ref)
+	}
+
+	return nil
+}
+
+// Returns the total number of references in db.
+func totalRefs() (int, error) {
+	db, err := Database()
+	if err != nil {
+		return -1, err
+	}
+	defer db.Close()
+
+	var count string
+	query := "SELECT content FROM statistics WHERE attribute = 'references';"
 	err = db.QueryRow(query).Scan(&count)
 	if err != nil {
 		logSentry(err)
