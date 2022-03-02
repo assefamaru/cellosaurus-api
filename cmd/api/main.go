@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -19,14 +20,19 @@ func main() {
 
 	sentryDsn := os.Getenv("CELLOSAURUS_SENTRY_DSN")
 	if sentryDsn == "" {
-		log.Fatal("CELLOSAURUS_SENTRY_DSN env must be set")
+		logWarning("CELLOSAURUS_SENTRY_DSN env must be set")
 	}
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn: sentryDsn,
 	})
 	if err != nil {
-		log.Fatalf("sentry.Init: %s", err)
+		logWarning(fmt.Sprintf("sentry.Init: %s", err))
 	}
 
 	api.Init(ctx)
+}
+
+func logWarning(message string) {
+	warning := log.New(os.Stdout, "\u001b[33mWARNING: \u001B[0m", log.LstdFlags|log.Lshortfile)
+	warning.Println(message)
 }
