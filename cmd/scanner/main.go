@@ -74,11 +74,12 @@ func scanRawCellData(lineStart int, sourceFile string, destFiles ...string) {
 	); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writerAttrs.WriteString("\"accession\",\"attribute\",\"content\"\n"); err != nil {
+	if _, err := writerAttrs.WriteString("\"\",\"accession\",\"attribute\",\"content\"\n"); err != nil {
 		log.Fatal(err)
 	}
 
 	start := 1
+	lineNumber := 1
 	cell := Cell{}
 	code := ""
 	value := ""
@@ -115,6 +116,8 @@ func scanRawCellData(lineStart int, sourceFile string, destFiles ...string) {
 		case "//":
 			if _, err := writerCells.WriteString(
 				csvSprintf(8,
+					false,
+					-1,
 					cell.Identifier,
 					cell.Accession,
 					cell.Secondary,
@@ -129,10 +132,11 @@ func scanRawCellData(lineStart int, sourceFile string, destFiles ...string) {
 			cell = Cell{}
 		default:
 			if _, err := writerAttrs.WriteString(
-				csvSprintf(3, cell.Accession, code, value),
+				csvSprintf(3, true, lineNumber, cell.Accession, code, value),
 			); err != nil {
 				log.Fatal(err)
 			}
+			lineNumber = lineNumber + 1
 		}
 	}
 
@@ -173,14 +177,16 @@ func scanRawRefData(lineStart int, sourceFile string, destFiles ...string) {
 	writerCells := bufio.NewWriter(csvCells)
 	writerAttrs := bufio.NewWriter(csvAttrs)
 
-	if _, err := writerCells.WriteString("\"identifier\",\"citation\"\n"); err != nil {
+	if _, err := writerCells.WriteString("\"\",\"identifier\",\"citation\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writerAttrs.WriteString("\"identifier\",\"attribute\",\"content\"\n"); err != nil {
+	if _, err := writerAttrs.WriteString("\"\",\"identifier\",\"attribute\",\"content\"\n"); err != nil {
 		log.Fatal(err)
 	}
 
 	start := 1
+	lineNumberRef := 1
+	lineNumberAttr := 1
 	identifier := ""
 	citation := ""
 	code := ""
@@ -205,18 +211,20 @@ func scanRawRefData(lineStart int, sourceFile string, destFiles ...string) {
 			citation = value
 		case "//":
 			if _, err := writerCells.WriteString(
-				csvSprintf(2, identifier, citation),
+				csvSprintf(2, true, lineNumberRef, identifier, citation),
 			); err != nil {
 				log.Fatal(err)
 			}
 			identifier = ""
 			citation = ""
+			lineNumberRef = lineNumberRef + 1
 		default:
 			if _, err := writerAttrs.WriteString(
-				csvSprintf(3, identifier, code, value),
+				csvSprintf(3, true, lineNumberAttr, identifier, code, value),
 			); err != nil {
 				log.Fatal(err)
 			}
+			lineNumberAttr = lineNumberAttr + 1
 		}
 	}
 
@@ -228,7 +236,7 @@ func scanRawRefData(lineStart int, sourceFile string, destFiles ...string) {
 	}
 }
 
-// Manually writes stats data from cellosaurus_relnotes.txt to csv.
+// Manually writes stats data from cellosaurus_relnotes.txt.
 func scanRelNoteStats(destFile string) {
 	csv, err := os.Create(destFile)
 	if err != nil {
@@ -249,28 +257,28 @@ func scanRelNoteStats(destFile string) {
 	if _, err := writer.WriteString("3,\"mouseCellLines\",\"22999\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"ratCellLines\",\"2498\"\n"); err != nil {
+	if _, err := writer.WriteString("4,\"ratCellLines\",\"2498\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"species\",\"747\"\n"); err != nil {
+	if _, err := writer.WriteString("5,\"species\",\"747\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"synonyms\",\"96745\"\n"); err != nil {
+	if _, err := writer.WriteString("6,\"synonyms\",\"96745\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"crossReferences\",\"396097\"\n"); err != nil {
+	if _, err := writer.WriteString("7,\"crossReferences\",\"396097\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"references\",\"138234\"\n"); err != nil {
+	if _, err := writer.WriteString("8,\"references\",\"138234\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"distinctPublications\",\"23257\"\n"); err != nil {
+	if _, err := writer.WriteString("9,\"distinctPublications\",\"23257\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"webLinks\",\"23257\"\n"); err != nil {
+	if _, err := writer.WriteString("10,\"webLinks\",\"23257\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"cellLinesWithStrProfiles\",\"8032\"\n"); err != nil {
+	if _, err := writer.WriteString("11,\"cellLinesWithStrProfiles\",\"8032\"\n"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -278,25 +286,48 @@ func scanRelNoteStats(destFile string) {
 }
 
 // Returns formatted string for csv file lines.
-func csvSprintf(placeholders int, words ...string) string {
-	if placeholders == 2 {
-		return fmt.Sprintf("\"%s\",\"%s\"\n", words[0], words[1])
-	}
-	if placeholders == 3 {
-		return fmt.Sprintf("\"%s\",\"%s\",\"%s\"\n", words[0], words[1], words[2])
-	}
-	if placeholders == 8 {
-		return fmt.Sprintf(
-			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-			words[0],
-			words[1],
-			words[2],
-			words[3],
-			words[4],
-			words[5],
-			words[6],
-			words[7],
-		)
+func csvSprintf(placeholders int, addLineNumber bool, lineNumber int, words ...string) string {
+	if addLineNumber {
+		if placeholders == 2 {
+			return fmt.Sprintf("%d,\"%s\",\"%s\"\n", lineNumber, words[0], words[1])
+		}
+		if placeholders == 3 {
+			return fmt.Sprintf("%d,\"%s\",\"%s\",\"%s\"\n", lineNumber, words[0], words[1], words[2])
+		}
+		if placeholders == 8 {
+			return fmt.Sprintf(
+				"%d,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+				lineNumber,
+				words[0],
+				words[1],
+				words[2],
+				words[3],
+				words[4],
+				words[5],
+				words[6],
+				words[7],
+			)
+		}
+	} else {
+		if placeholders == 2 {
+			return fmt.Sprintf("\"%s\",\"%s\"\n", words[0], words[1])
+		}
+		if placeholders == 3 {
+			return fmt.Sprintf("\"%s\",\"%s\",\"%s\"\n", words[0], words[1], words[2])
+		}
+		if placeholders == 8 {
+			return fmt.Sprintf(
+				"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+				words[0],
+				words[1],
+				words[2],
+				words[3],
+				words[4],
+				words[5],
+				words[6],
+				words[7],
+			)
+		}
 	}
 	return ""
 }
