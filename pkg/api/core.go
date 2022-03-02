@@ -94,6 +94,7 @@ type Cells struct {
 func (cells *Cells) List() error {
 	db, err := Database()
 	if err != nil {
+		logSentry(err)
 		return err
 	}
 	defer db.Close()
@@ -154,6 +155,7 @@ func (cells *Cells) List() error {
 func (cell *Cell) Find() error {
 	db, err := Database()
 	if err != nil {
+		logSentry(err)
 		return err
 	}
 	defer db.Close()
@@ -334,6 +336,7 @@ type References struct {
 func (refs *References) List() error {
 	db, err := Database()
 	if err != nil {
+		logSentry(err)
 		return err
 	}
 	defer db.Close()
