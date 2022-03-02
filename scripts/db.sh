@@ -1,15 +1,16 @@
 #!/bin/bash
 
 echo "== starting script to recreate db locally =="
-echo "=="
 
+echo "--"
 read -p "New database name: " database
 read -p "MySQL user: " user
-read -p "MySQL password: " password
+read -s -p "MySQL password: " password
+echo
+echo "--"
 
-echo "=="
 echo "== creating database tables, and loading csv data =="
-mysql -u "$user" -p"$password" <<EOF
+mysql --local_infile=1 -u "$user" -p"$password" <<EOF
 DROP DATABASE IF EXISTS $database;
 CREATE DATABASE $database;
 USE $database;
@@ -49,8 +50,32 @@ IGNORE 1 LINES;
 CREATE TABLE refs(
     id INT AUTO_INCREMENT primary key NOT NULL,
     identifier VARCHAR(200) NOT NULL,
-    citation VARCHAR(500)
+    citation VARCHAR(500),
+    INDEX identifier (identifier)
 );
 LOAD DATA LOCAL INFILE '../data/refs.csv' INTO TABLE refs
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 IGNORE 1 LINES;
+
+CREATE TABLE ref_attributes(
+    id INT AUTO_INCREMENT primary key NOT NULL,
+    identifier VARCHAR(20) NOT NULL,
+    attribute VARCHAR(20) NOT NULL,
+    content VARCHAR(1000) NOT NULL,
+    FOREIGN KEY (identifier) REFERENCES refs(identifier)
+);
+LOAD DATA LOCAL INFILE '../data/ref_attributes.csv' INTO TABLE ref_attributes
+FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+IGNORE 1 LINES;
+
+CREATE TABLE statistics(
+    id INT AUTO_INCREMENT primary key NOT NULL,
+    attribute VARCHAR(255) NOT NULL,
+    count VARCHAR(255) NOT NULL
+);
+LOAD DATA LOCAL INFILE '../data/statistics.csv' INTO TABLE statistics
+FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+IGNORE 1 LINES;
+EOF
+
+echo "== DONE =="

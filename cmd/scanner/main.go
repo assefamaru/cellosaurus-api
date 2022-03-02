@@ -237,16 +237,16 @@ func scanRelNoteStats(destFile string) {
 	defer csv.Close()
 
 	writer := bufio.NewWriter(csv)
-	if _, err := writer.WriteString("\"attribute\",\"count\"\n"); err != nil {
+	if _, err := writer.WriteString("\"\",\"attribute\",\"count\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"totalCells\",\"134839\"\n"); err != nil {
+	if _, err := writer.WriteString("1,\"totalCells\",\"134839\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"humanCellLines\",\"101276\"\n"); err != nil {
+	if _, err := writer.WriteString("2,\"humanCellLines\",\"101276\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("\"mouseCellLines\",\"22999\"\n"); err != nil {
+	if _, err := writer.WriteString("3,\"mouseCellLines\",\"22999\"\n"); err != nil {
 		log.Fatal(err)
 	}
 	if _, err := writer.WriteString("\"ratCellLines\",\"2498\"\n"); err != nil {
