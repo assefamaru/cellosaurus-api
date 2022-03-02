@@ -33,8 +33,7 @@ CREATE TABLE cells(
     INDEX date (date)
 );
 LOAD DATA LOCAL INFILE '../data/cells.csv' INTO TABLE cells
-FIELDS TERMINATED BY ',' ENCLOSED BY '"'
-IGNORE 1 LINES;
+FIELDS TERMINATED BY ',' ENCLOSED BY '"';
 
 CREATE TABLE cell_attributes(
     id INT AUTO_INCREMENT primary key NOT NULL,
@@ -44,8 +43,7 @@ CREATE TABLE cell_attributes(
     FOREIGN KEY (accession) REFERENCES cells(accession)
 );
 LOAD DATA LOCAL INFILE '../data/cell_attributes.csv' INTO TABLE cell_attributes
-FIELDS TERMINATED BY ',' ENCLOSED BY '"'
-IGNORE 1 LINES;
+FIELDS TERMINATED BY ',' ENCLOSED BY '"';
 
 CREATE TABLE refs(
     id INT AUTO_INCREMENT primary key NOT NULL,
@@ -54,8 +52,7 @@ CREATE TABLE refs(
     INDEX identifier (identifier)
 );
 LOAD DATA LOCAL INFILE '../data/refs.csv' INTO TABLE refs
-FIELDS TERMINATED BY ',' ENCLOSED BY '"'
-IGNORE 1 LINES;
+FIELDS TERMINATED BY ',' ENCLOSED BY '"';
 
 CREATE TABLE ref_attributes(
     id INT AUTO_INCREMENT primary key NOT NULL,
@@ -65,8 +62,7 @@ CREATE TABLE ref_attributes(
     FOREIGN KEY (identifier) REFERENCES refs(identifier)
 );
 LOAD DATA LOCAL INFILE '../data/ref_attributes.csv' INTO TABLE ref_attributes
-FIELDS TERMINATED BY ',' ENCLOSED BY '"'
-IGNORE 1 LINES;
+FIELDS TERMINATED BY ',' ENCLOSED BY '"';
 
 CREATE TABLE statistics(
     id INT AUTO_INCREMENT primary key NOT NULL,
@@ -74,8 +70,7 @@ CREATE TABLE statistics(
     count VARCHAR(255) NOT NULL
 );
 LOAD DATA LOCAL INFILE '../data/statistics.csv' INTO TABLE statistics
-FIELDS TERMINATED BY ',' ENCLOSED BY '"'
-IGNORE 1 LINES;
+FIELDS TERMINATED BY ',' ENCLOSED BY '"';
 EOF
 
 echo "== DONE =="
