@@ -49,7 +49,7 @@ func FindCell(c *gin.Context) {
 	indentRenderer(c, cell, indent)
 }
 
-// GET /references.
+// GET /refs.
 func ListReferences(c *gin.Context) {
 	meta, err := getMeta(c, "refs")
 	if err != nil {
@@ -63,4 +63,15 @@ func ListReferences(c *gin.Context) {
 		return
 	}
 	indentRenderer(c, refs, indent)
+}
+
+// GET /xrefs.
+func ListCrossReferences(c *gin.Context) {
+	indent := getIndent(c)
+	xrefs := XRefs{}
+	if err := xrefs.List(); err != nil {
+		InternalServerError(c)
+		return
+	}
+	indentRenderer(c, xrefs, indent)
 }

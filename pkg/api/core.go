@@ -429,3 +429,51 @@ func totalRefs() (int, error) {
 	total, _ := strconv.Atoi(count)
 	return total, nil
 }
+
+type XRef struct {
+	Abbreviation string `json:"abbreviation"`
+	Name         string `json:"name"`
+	Server       string `json:"server"`
+	URL          string `json:"dbURL"`
+	Terminology  string `json:"terminology"`
+	Category     string `json:"category"`
+}
+
+type XRefs struct {
+	Data []XRef
+}
+
+// Returns a list of cross references.
+func (xrefs *XRefs) List() error {
+	db, err := Database()
+	if err != nil {
+		logSentry(err)
+		return err
+	}
+	defer db.Close()
+
+	query := "SELECT abbrev, name, server, url, term, cat FROM xrefs;"
+	rows, err := db.Query(query)
+	if err != nil {
+		logSentry(err)
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		xref := XRef{}
+		if err = rows.Scan(
+			&xref.Abbreviation,
+			&xref.Name,
+			&xref.Server,
+			&xref.URL,
+			&xref.Terminology,
+			&xref.Category,
+		); err != nil {
+			logSentry(err)
+			return err
+		}
+		xrefs.Data = append(xrefs.Data, xref)
+	}
+	return nil
+}

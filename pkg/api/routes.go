@@ -21,5 +21,6 @@ var routes = Routes{
 	Route{http.MethodGet, "/cells/*id", FindCell},
 	Route{http.MethodGet, "/cell_lines/*id", FindCell},
 	Route{http.MethodGet, "/cell-lines/*id", FindCell},
-	Route{http.MethodGet, "/references", ListReferences},
+	Route{http.MethodGet, "/refs", ListReferences},
+	Route{http.MethodGet, "/xrefs", ListCrossReferences},
 }
