@@ -16,14 +16,14 @@ CREATE DATABASE $database;
 USE $database;
 
 CREATE TABLE cells(
-    identifier VARCHAR(255) NOT NULL,
+    identifier VARCHAR(500) NOT NULL,
     accession VARCHAR(20) primary key NOT NULL,
     secondary VARCHAR(500),
     synonyms VARCHAR(500),
     sex VARCHAR(255),
     age VARCHAR(255),
     category VARCHAR(255),
-    date VARCHAR(255),
+    date VARCHAR(500),
     INDEX identifier (identifier),
     INDEX secondary (secondary),
     INDEX synonyms (synonyms),
@@ -51,8 +51,8 @@ IGNORE 1 LINES;
 
 CREATE TABLE refs(
     id INT AUTO_INCREMENT primary key NOT NULL,
-    identifier VARCHAR(200) NOT NULL,
-    citation VARCHAR(500),
+    identifier VARCHAR(500) NOT NULL,
+    citation VARCHAR(1000),
     INDEX identifier (identifier)
 );
 LOAD DATA LOCAL INFILE '../data/refs.csv' INTO TABLE refs
@@ -62,7 +62,7 @@ IGNORE 1 LINES;
 
 CREATE TABLE ref_attributes(
     id INT AUTO_INCREMENT primary key NOT NULL,
-    identifier VARCHAR(20) NOT NULL,
+    identifier VARCHAR(500) NOT NULL,
     attribute VARCHAR(20) NOT NULL,
     content VARCHAR(1000) NOT NULL,
     FOREIGN KEY (identifier) REFERENCES refs(identifier)
@@ -74,8 +74,8 @@ IGNORE 1 LINES;
 
 CREATE TABLE statistics(
     id INT AUTO_INCREMENT primary key NOT NULL,
-    attribute VARCHAR(255) NOT NULL,
-    count VARCHAR(255) NOT NULL
+    attribute VARCHAR(100) NOT NULL,
+    count VARCHAR(50) NOT NULL
 );
 LOAD DATA LOCAL INFILE '../data/statistics.csv' INTO TABLE statistics
 FIELDS TERMINATED BY ','
