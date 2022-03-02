@@ -298,6 +298,9 @@ func scanRawCrossRefData(lineStart int, sourceFile string, destFile string) {
 		case "Abbrev":
 			xRef.Abbrev = value
 		case "Name  ":
+			if strings.HasPrefix(value, "Istituto Zooprofilattico") { // sanitize special char from raw data
+				value = "Istituto Zooprofilattico Sperimentale della Lombardia e dell Emilia Romagna biobank"
+			}
 			xRef.Name = value
 		case "Server":
 			xRef.Server = value

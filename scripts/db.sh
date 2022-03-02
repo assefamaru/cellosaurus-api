@@ -72,6 +72,21 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 IGNORE 1 LINES;
 
+CREATE TABLE xrefs(
+    id INT AUTO_INCREMENT primary key NOT NULL,
+    abbrev VARCHAR(500) NOT NULL,
+    name VARCHAR(500) NOT NULL,
+    server VARCHAR(500) NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    term VARCHAR(500) NOT NULL,
+    cat VARCHAR(500) NOT NULL,
+    INDEX identifier (abbrev)
+);
+LOAD DATA LOCAL INFILE '../data/xrefs.csv' INTO TABLE xrefs
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+IGNORE 1 LINES;
+
 CREATE TABLE statistics(
     id INT AUTO_INCREMENT primary key NOT NULL,
     attribute VARCHAR(100) NOT NULL,
