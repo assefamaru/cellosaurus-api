@@ -248,7 +248,7 @@ func scanRelNoteStats(destFile string) {
 	if _, err := writer.WriteString("\"\",\"attribute\",\"count\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("1,\"totalCells\",\"134839\"\n"); err != nil {
+	if _, err := writer.WriteString("1,\"totalCellLines\",\"134839\"\n"); err != nil {
 		log.Fatal(err)
 	}
 	if _, err := writer.WriteString("2,\"humanCellLines\",\"101276\"\n"); err != nil {
@@ -279,6 +279,9 @@ func scanRelNoteStats(destFile string) {
 		log.Fatal(err)
 	}
 	if _, err := writer.WriteString("11,\"cellLinesWithStrProfiles\",\"8032\"\n"); err != nil {
+		log.Fatal(err)
+	}
+	if _, err := writer.WriteString("12,\"version\",\"40\"\n"); err != nil {
 		log.Fatal(err)
 	}
 
