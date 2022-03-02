@@ -245,94 +245,37 @@ func scanRelNoteStats(destFile string) {
 	defer csv.Close()
 
 	writer := bufio.NewWriter(csv)
-	if _, err := writer.WriteString("\"\",\"attribute\",\"count\"\n"); err != nil {
+	if _, err := writer.WriteString(
+		"\"\",\"attribute\",\"count\"\n" +
+			"1,\"totalCellLines\",\"134839\"\n" +
+			"2,\"humanCellLines\",\"101276\"\n" +
+			"3,\"mouseCellLines\",\"22999\"\n" +
+			"4,\"ratCellLines\",\"2498\"\n" +
+			"5,\"species\",\"747\"\n" +
+			"6,\"synonyms\",\"96745\"\n" +
+			"7,\"crossReferences\",\"396097\"\n" +
+			"8,\"references\",\"138234\"\n" +
+			"9,\"distinctPublications\",\"23257\"\n" +
+			"10,\"webLinks\",\"23257\"\n" +
+			"11,\"cellLinesWithStrProfiles\",\"8032\"\n" +
+			"12,\"version\",\"40\"\n",
+	); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writer.WriteString("1,\"totalCellLines\",\"134839\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("2,\"humanCellLines\",\"101276\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("3,\"mouseCellLines\",\"22999\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("4,\"ratCellLines\",\"2498\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("5,\"species\",\"747\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("6,\"synonyms\",\"96745\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("7,\"crossReferences\",\"396097\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("8,\"references\",\"138234\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("9,\"distinctPublications\",\"23257\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("10,\"webLinks\",\"23257\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("11,\"cellLinesWithStrProfiles\",\"8032\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writer.WriteString("12,\"version\",\"40\"\n"); err != nil {
-		log.Fatal(err)
-	}
-
 	writer.Flush()
 }
 
 // Returns formatted string for csv file lines.
 func csvSprintf(placeholders int, addLineNumber bool, lineNumber int, words ...string) string {
+	prefix := ""
 	if addLineNumber {
-		if placeholders == 2 {
-			return fmt.Sprintf("%d,\"%s\",\"%s\"\n", lineNumber, words[0], words[1])
-		}
-		if placeholders == 3 {
-			return fmt.Sprintf("%d,\"%s\",\"%s\",\"%s\"\n", lineNumber, words[0], words[1], words[2])
-		}
-		if placeholders == 8 {
-			return fmt.Sprintf(
-				"%d,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-				lineNumber,
-				words[0],
-				words[1],
-				words[2],
-				words[3],
-				words[4],
-				words[5],
-				words[6],
-				words[7],
-			)
-		}
-	} else {
-		if placeholders == 2 {
-			return fmt.Sprintf("\"%s\",\"%s\"\n", words[0], words[1])
-		}
-		if placeholders == 3 {
-			return fmt.Sprintf("\"%s\",\"%s\",\"%s\"\n", words[0], words[1], words[2])
-		}
-		if placeholders == 8 {
-			return fmt.Sprintf(
-				"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-				words[0],
-				words[1],
-				words[2],
-				words[3],
-				words[4],
-				words[5],
-				words[6],
-				words[7],
-			)
-		}
+		prefix = fmt.Sprintf("%d,", lineNumber)
 	}
-	return ""
+	final := ""
+	for _, word := range words {
+		final = final + fmt.Sprintf("\"%s\",", word)
+	}
+	return prefix + strings.TrimSuffix(final, ",") + "\n"
 }
 
 // Returns the absolute path to read/write file.
