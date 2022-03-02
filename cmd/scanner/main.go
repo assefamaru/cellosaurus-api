@@ -12,17 +12,29 @@ import (
 func main() {
 	// parse cellosaurus.txt - version 40
 	// raw data starts on line 55
-	scanRawCellData(55,
+	scanRawCellData(
+		55,
 		getFilePath("cellosaurus", "cellosaurus.txt"),
 		getFilePath("data", "cells.csv"),
-		getFilePath("data", "cell_attributes.csv"))
+		getFilePath("data", "cell_attributes.csv"),
+	)
 
 	// parse cellosaurus_refs.txt - version 40
 	// raw data starts on line 38
-	scanRawRefData(38,
+	scanRawRefData(
+		38,
 		getFilePath("cellosaurus", "cellosaurus_refs.txt"),
 		getFilePath("data", "refs.csv"),
-		getFilePath("data", "ref_attributes.csv"))
+		getFilePath("data", "ref_attributes.csv"),
+	)
+
+	// parse cellosaurus_xrefs.txt - version 40
+	// raw data starts on line 118
+	scanRawCrossRefData(
+		118,
+		getFilePath("cellosaurus", "cellosaurus_xrefs.txt"),
+		getFilePath("data", "xrefs.csv"),
+	)
 
 	// stats from cellosaurus_relnotes.txt - version 40
 	// manually entered for simplicity below
@@ -115,7 +127,7 @@ func scanRawCellData(lineStart int, sourceFile string, destFiles ...string) {
 			cell.Date = value
 		case "//":
 			if _, err := writerCells.WriteString(
-				csvSprintf(8,
+				csvSprintf(
 					false,
 					-1,
 					cell.Identifier,
@@ -125,24 +137,23 @@ func scanRawCellData(lineStart int, sourceFile string, destFiles ...string) {
 					cell.Sex,
 					cell.Age,
 					cell.Category,
-					cell.Date),
+					cell.Date,
+				),
 			); err != nil {
 				log.Fatal(err)
 			}
 			cell = Cell{}
 		default:
 			if _, err := writerAttrs.WriteString(
-				csvSprintf(3, true, lineNumber, cell.Accession, code, value),
+				csvSprintf(true, lineNumber, cell.Accession, code, value),
 			); err != nil {
 				log.Fatal(err)
 			}
 			lineNumber = lineNumber + 1
 		}
 	}
-
 	writerCells.Flush()
 	writerAttrs.Flush()
-
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
@@ -211,7 +222,7 @@ func scanRawRefData(lineStart int, sourceFile string, destFiles ...string) {
 			citation = value
 		case "//":
 			if _, err := writerCells.WriteString(
-				csvSprintf(2, true, lineNumberRef, identifier, citation),
+				csvSprintf(true, lineNumberRef, identifier, citation),
 			); err != nil {
 				log.Fatal(err)
 			}
@@ -220,17 +231,102 @@ func scanRawRefData(lineStart int, sourceFile string, destFiles ...string) {
 			lineNumberRef = lineNumberRef + 1
 		default:
 			if _, err := writerAttrs.WriteString(
-				csvSprintf(3, true, lineNumberAttr, identifier, code, value),
+				csvSprintf(true, lineNumberAttr, identifier, code, value),
 			); err != nil {
 				log.Fatal(err)
 			}
 			lineNumberAttr = lineNumberAttr + 1
 		}
 	}
-
 	writerCells.Flush()
 	writerAttrs.Flush()
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
 
+type XRef struct {
+	Abbrev string
+	Name   string
+	Server string
+	URL    string
+	Term   string
+	Cat    string
+}
+
+func scanRawCrossRefData(lineStart int, sourceFile string, destFile string) {
+	txt, err := os.Open(sourceFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer txt.Close()
+
+	csv, err := os.Create(destFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer csv.Close()
+
+	scanner := bufio.NewScanner(txt)
+	writer := bufio.NewWriter(csv)
+
+	if _, err := writer.WriteString(
+		"\"\",\"abbrev\",\"name\",\"server\",\"url\",\"term\",\"cat\"\n",
+	); err != nil {
+		log.Fatal(err)
+	}
+
+	start := 1
+	lineNumber := 1
+	code := ""
+	value := ""
+	xRef := XRef{}
+	for scanner.Scan() {
+		if start < lineStart {
+			start = start + 1
+			continue
+		}
+
+		line := scanner.Text()
+		dict := strings.Split(line, ": ")
+		code = dict[0]
+		if len(dict) > 1 {
+			value = dict[1]
+		}
+
+		switch code {
+		case "Abbrev":
+			xRef.Abbrev = value
+		case "Name  ":
+			xRef.Name = value
+		case "Server":
+			xRef.Server = value
+		case "Db_URL":
+			xRef.URL = value
+		case "Term. ":
+			xRef.Term = value
+		case "Cat   ":
+			xRef.Cat = value
+		case "//":
+			if _, err := writer.WriteString(
+				csvSprintf(
+					true,
+					lineNumber,
+					xRef.Abbrev,
+					xRef.Name,
+					xRef.Server,
+					xRef.URL,
+					xRef.Term,
+					xRef.Cat,
+				),
+			); err != nil {
+				log.Fatal(err)
+			}
+			lineNumber = lineNumber + 1
+			xRef = XRef{}
+		}
+	}
+	writer.Flush()
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
@@ -243,7 +339,6 @@ func scanRelNoteStats(destFile string) {
 		log.Fatal(err)
 	}
 	defer csv.Close()
-
 	writer := bufio.NewWriter(csv)
 	if _, err := writer.WriteString(
 		"\"\",\"attribute\",\"count\"\n" +
@@ -266,7 +361,7 @@ func scanRelNoteStats(destFile string) {
 }
 
 // Returns formatted string for csv file lines.
-func csvSprintf(placeholders int, addLineNumber bool, lineNumber int, words ...string) string {
+func csvSprintf(addLineNumber bool, lineNumber int, words ...string) string {
 	prefix := ""
 	if addLineNumber {
 		prefix = fmt.Sprintf("%d,", lineNumber)
