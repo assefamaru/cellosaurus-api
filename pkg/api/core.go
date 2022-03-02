@@ -306,7 +306,7 @@ func totalCells() (int, error) {
 	defer db.Close()
 
 	var count string
-	query := "SELECT content FROM statistics WHERE attribute = 'totalCellLines';"
+	query := "SELECT count FROM statistics WHERE attribute = 'totalCellLines';"
 	err = db.QueryRow(query).Scan(&count)
 	if err != nil {
 		logSentry(err)
@@ -416,7 +416,7 @@ func totalRefs() (int, error) {
 	defer db.Close()
 
 	var count string
-	query := "SELECT content FROM statistics WHERE attribute = 'references';"
+	query := "SELECT count FROM statistics WHERE attribute = 'references';"
 	err = db.QueryRow(query).Scan(&count)
 	if err != nil {
 		logSentry(err)
