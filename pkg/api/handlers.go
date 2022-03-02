@@ -75,3 +75,14 @@ func ListCrossReferences(c *gin.Context) {
 	}
 	indentRenderer(c, xrefs, indent)
 }
+
+// GET /stats.
+func ListStatistics(c *gin.Context) {
+	indent := getIndent(c)
+	stats, err := ListStats()
+	if err != nil {
+		InternalServerError(c)
+		return
+	}
+	indentRenderer(c, stats, indent)
+}

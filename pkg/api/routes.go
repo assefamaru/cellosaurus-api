@@ -15,6 +15,7 @@ type Route struct {
 type Routes []Route
 
 var routes = Routes{
+	Route{http.MethodGet, "/", ListStatistics},
 	Route{http.MethodGet, "/cells", ListCells},
 	Route{http.MethodGet, "/cell_lines", ListCells},
 	Route{http.MethodGet, "/cell-lines", ListCells},
@@ -23,4 +24,5 @@ var routes = Routes{
 	Route{http.MethodGet, "/cell-lines/*id", FindCell},
 	Route{http.MethodGet, "/refs", ListReferences},
 	Route{http.MethodGet, "/xrefs", ListCrossReferences},
+	Route{http.MethodGet, "/stats", ListStatistics},
 }

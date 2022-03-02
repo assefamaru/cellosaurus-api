@@ -345,10 +345,10 @@ func scanRelNoteStats(destFile string) {
 	writer := bufio.NewWriter(csv)
 	if _, err := writer.WriteString(
 		"\"\",\"attribute\",\"count\"\n" +
-			"1,\"totalCellLines\",\"134839\"\n" +
-			"2,\"humanCellLines\",\"101276\"\n" +
-			"3,\"mouseCellLines\",\"22999\"\n" +
-			"4,\"ratCellLines\",\"2498\"\n" +
+			"1,\"cellLinesTotal\",\"134839\"\n" +
+			"2,\"cellLinesHuman\",\"101276\"\n" +
+			"3,\"cellLinesMouse\",\"22999\"\n" +
+			"4,\"cellLinesRat\",\"2498\"\n" +
 			"5,\"species\",\"747\"\n" +
 			"6,\"synonyms\",\"96745\"\n" +
 			"7,\"crossReferences\",\"396097\"\n" +
