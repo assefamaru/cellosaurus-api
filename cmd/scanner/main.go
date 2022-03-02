@@ -176,7 +176,7 @@ func scanRawRefData(lineStart int, sourceFile string, destFiles ...string) {
 	if _, err := writerCells.WriteString("\"identifier\",\"citation\"\n"); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := writerAttrs.WriteString("\"authors\",\"consortium\",\"title\"\n"); err != nil {
+	if _, err := writerAttrs.WriteString("\"identifier\",\"attribute\",\"content\"\n"); err != nil {
 		log.Fatal(err)
 	}
 
