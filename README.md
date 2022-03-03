@@ -2,8 +2,6 @@
 
 The [Cellosaurus](https://web.expasy.org/cellosaurus/) is a knowledge resource on cell lines. It attempts to describe all cell lines used in biomedical research. This API aims to make the data provided by Cellosaurus as integrable as possible, by providing programmatic access to the full database.
 
-Follow the steps below to get the API up and running in your local environment.
-
 ## Getting Started
 
 1. Clone this repository:
@@ -12,7 +10,7 @@ Follow the steps below to get the API up and running in your local environment.
 git clone https://github.com/assefamaru/cellosaurus-api
 ```
 
-2. Move into [_scripts_](scripts) directory:
+2. Move into [_scripts_](https://github.com/assefamaru/cellosaurus-api/tree/master/scripts) directory:
 
 ```bash
 cd cellosaurus-api/scripts
