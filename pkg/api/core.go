@@ -440,7 +440,7 @@ type XRef struct {
 }
 
 type XRefs struct {
-	Data []XRef
+	Data []XRef `json:"data"`
 }
 
 // Returns a list of cross references.
