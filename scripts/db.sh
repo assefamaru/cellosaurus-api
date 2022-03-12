@@ -24,14 +24,17 @@ CREATE TABLE cells(
     age VARCHAR(255),
     category VARCHAR(255),
     date VARCHAR(500),
-    INDEX identifier (identifier),
-    INDEX secondary (secondary),
-    INDEX synonyms (synonyms),
-    INDEX sex (sex),
-    INDEX age (age),
-    INDEX category (category),
-    INDEX date (date)
-);
+    INDEX identifier_cells (identifier),
+    INDEX secondary_cells (secondary),
+    INDEX synonyms_cells (synonyms),
+    INDEX sex_cells (sex),
+    INDEX age_cells (age),
+    INDEX category_cells (category),
+    INDEX date_cells (date)
+)
+ENGINE = InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/cells.csv' INTO TABLE cells
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -43,7 +46,10 @@ CREATE TABLE cell_attributes(
     attribute VARCHAR(20) NOT NULL,
     content VARCHAR(1000) NOT NULL,
     FOREIGN KEY (accession) REFERENCES cells(accession)
-);
+)
+ENGINE = InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/cell_attributes.csv' INTO TABLE cell_attributes
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -51,10 +57,13 @@ IGNORE 1 LINES;
 
 CREATE TABLE refs(
     id INT AUTO_INCREMENT primary key NOT NULL,
-    identifier VARCHAR(500) NOT NULL,
+    identifier VARCHAR(500) NOT NULL UNIQUE,
     citation VARCHAR(1000),
-    INDEX identifier (identifier)
-);
+    INDEX identifier_refs (identifier)
+)
+ENGINE = InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/refs.csv' INTO TABLE refs
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -66,7 +75,10 @@ CREATE TABLE ref_attributes(
     attribute VARCHAR(20) NOT NULL,
     content VARCHAR(1000) NOT NULL,
     FOREIGN KEY (identifier) REFERENCES refs(identifier)
-);
+)
+ENGINE = InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/ref_attributes.csv' INTO TABLE ref_attributes
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -80,8 +92,11 @@ CREATE TABLE xrefs(
     url VARCHAR(500) NOT NULL,
     term VARCHAR(500) NOT NULL,
     cat VARCHAR(500) NOT NULL,
-    INDEX identifier (abbrev)
-);
+    INDEX abbrev_xrefs (abbrev)
+)
+ENGINE = InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/xrefs.csv' INTO TABLE xrefs
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -91,7 +106,10 @@ CREATE TABLE statistics(
     id INT AUTO_INCREMENT primary key NOT NULL,
     attribute VARCHAR(100) NOT NULL,
     count VARCHAR(50) NOT NULL
-);
+)
+ENGINE = InnoDB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/statistics.csv' INTO TABLE statistics
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
