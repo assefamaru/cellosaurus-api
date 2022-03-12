@@ -4,6 +4,8 @@ The [Cellosaurus](https://web.expasy.org/cellosaurus/) is a knowledge resource o
 
 ## Getting Started
 
+Follow the steps below to get started.
+
 1. Clone this repository:
 
 ```bash
