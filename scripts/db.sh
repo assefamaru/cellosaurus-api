@@ -10,7 +10,7 @@ echo
 echo "--"
 
 echo "== creating database tables, and loading csv data =="
-mysql --local_infile=1 -u "$user" -p"$password" <<EOF
+mysql --local_infile=1 -u"$user" -p"$password" <<EOF
 DROP DATABASE IF EXISTS $database;
 CREATE DATABASE $database;
 USE $database;
@@ -24,17 +24,15 @@ CREATE TABLE cells(
     age VARCHAR(255),
     category VARCHAR(255),
     date VARCHAR(500),
-    INDEX identifier_cells (identifier),
-    INDEX secondary_cells (secondary),
-    INDEX synonyms_cells (synonyms),
-    INDEX sex_cells (sex),
-    INDEX age_cells (age),
-    INDEX category_cells (category),
-    INDEX date_cells (date)
+    INDEX identifier (identifier),
+    INDEX secondary (secondary),
+    INDEX synonyms (synonyms),
+    INDEX sex (sex),
+    INDEX age (age),
+    INDEX category (category),
+    INDEX date (date)
 )
-ENGINE = InnoDB
-CHARACTER SET utf8
-COLLATE utf8_general_ci;
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/cells.csv' INTO TABLE cells
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -47,9 +45,7 @@ CREATE TABLE cell_attributes(
     content VARCHAR(1000) NOT NULL,
     FOREIGN KEY (accession) REFERENCES cells(accession)
 )
-ENGINE = InnoDB
-CHARACTER SET utf8
-COLLATE utf8_general_ci;
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/cell_attributes.csv' INTO TABLE cell_attributes
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -57,13 +53,11 @@ IGNORE 1 LINES;
 
 CREATE TABLE refs(
     id INT AUTO_INCREMENT primary key NOT NULL,
-    identifier VARCHAR(500) NOT NULL UNIQUE,
+    identifier VARCHAR(500) NOT NULL,
     citation VARCHAR(1000),
-    INDEX identifier_refs (identifier)
+    INDEX identifier (identifier)
 )
-ENGINE = InnoDB
-CHARACTER SET utf8
-COLLATE utf8_general_ci;
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/refs.csv' INTO TABLE refs
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -73,12 +67,9 @@ CREATE TABLE ref_attributes(
     id INT AUTO_INCREMENT primary key NOT NULL,
     identifier VARCHAR(500) NOT NULL,
     attribute VARCHAR(20) NOT NULL,
-    content VARCHAR(1000) NOT NULL,
-    FOREIGN KEY (identifier) REFERENCES refs(identifier)
+    content VARCHAR(1000) NOT NULL
 )
-ENGINE = InnoDB
-CHARACTER SET utf8
-COLLATE utf8_general_ci;
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/ref_attributes.csv' INTO TABLE ref_attributes
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -92,11 +83,9 @@ CREATE TABLE xrefs(
     url VARCHAR(500) NOT NULL,
     term VARCHAR(500) NOT NULL,
     cat VARCHAR(500) NOT NULL,
-    INDEX abbrev_xrefs (abbrev)
+    INDEX identifier (abbrev)
 )
-ENGINE = InnoDB
-CHARACTER SET utf8
-COLLATE utf8_general_ci;
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/xrefs.csv' INTO TABLE xrefs
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -107,9 +96,7 @@ CREATE TABLE statistics(
     attribute VARCHAR(100) NOT NULL,
     count VARCHAR(50) NOT NULL
 )
-ENGINE = InnoDB
-CHARACTER SET utf8
-COLLATE utf8_general_ci;
+ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 LOAD DATA LOCAL INFILE '../data/statistics.csv' INTO TABLE statistics
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
