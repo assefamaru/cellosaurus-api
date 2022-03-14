@@ -2,9 +2,61 @@
 
 The [Cellosaurus](https://web.expasy.org/cellosaurus/) is a knowledge resource on cell lines. It attempts to describe all cell lines used in biomedical research. This API aims to make the data provided by Cellosaurus as integrable as possible, by providing programmatic access to the full database.
 
-## Getting Started
+NOTE: The live version of the API is hosted on a free tier plan on heroku, and [sleeps after 30 minutes of inactivity](https://devcenter.heroku.com/articles/free-dyno-hours#dyno-sleeping). As a result, you might experience a lag on your first request.
 
-Follow the steps below to get started.
+## Accessing the API
+
+All calls are made to the following base URL, adding required endpoints for specific services.
+
+```
+https://api.cellosaur.us/v40
+```
+
+All responses are in `json` format.
+
+## Endpoints
+
+The following endpoints are currently supported:
+
+| Method | Endpoint             | Parameter(s)                | Example                                                         |
+| :----: | :------------------- | :-------------------------- | :-------------------------------------------------------------- |
+|  GET   | **/cells**           | `page`, `perPage`, `indent` | https://api.cellosaur.us/v40/cells?page=8&perPage=20            |
+|  GET   | **/cell-lines**      | `page`, `perPage`, `indent` | https://api.cellosaur.us/v40/cell-lines?page=3&perPage=20       |
+|  GET   | **/cell_lines**      | `page`, `perPage`, `indent` | https://api.cellosaur.us/v40/cell_lines?page=5&perPage=20       |
+|  GET   | **/cells/{id}**      | `indent`                    | https://api.cellosaur.us/v40/cells/mcf-7?indent=true            |
+|  GET   | **/cell-lines/{id}** | `indent`                    | https://api.cellosaur.us/v40/cell-lines/mcf-7?indent=true       |
+|  GET   | **/cell_lines/{id}** | `indent`                    | https://api.cellosaur.us/v40/cell_lines/mcf-7?indent=true       |
+|  GET   | **/refs**            | `page`, `perPage`, `indent` | https://api.cellosaur.us/v40/refs?page=1&perPage=10&indent=true |
+|  GET   | **/xrefs**           | `indent`                    | https://api.cellosaur.us/v40/xrefs?indent=true                  |
+|  GET   | **/stats**           | `indent`                    | https://api.cellosaur.us/v40/stats                              |
+
+Endpoints should always be prefixed with the current version number when making a request (ie. the `v40` in `https://api.cellosaur.us/v40/<endpoint>`).
+
+Parameters need not be present in request URLs. When parameters are not included in request, they are set to their default values, which are as follows:
+
+| Parameter | Default Value |
+| :-------- | :-----------: |
+| `page`    |      `1`      |
+| `perPage` |     `10`      |
+| `indent`  |    `true`     |
+
+Endpoints that contain `page` and `perPage` parameters will have a `meta` field in their response containing pagination information, as well as the total number of records under the requested resource type. Such a response will look as follows:
+
+```json
+{
+    "meta": {
+        "page": ,
+        "perPage": ,
+        "lastPage": ,
+        "total":
+    },
+    "data": []
+}
+```
+
+## Getting Started Locally
+
+You can follow the steps below to setup the API locally.
 
 1. Clone this repository:
 
@@ -43,47 +95,7 @@ export PORT=xyz                # eg. 8080
 ./run.sh
 ```
 
-Alternatively, you can also build the api first `./build.sh`, then run one of the generated executables inside `build` directory at the root of the project.
-
-## Endpoints
-
-The following endpoints are currently supported:
-
-| Method | Endpoint             | Parameter(s)                | Example                                                      |
-| :----: | :------------------- | :-------------------------- | :----------------------------------------------------------- |
-|  GET   | **/cells**           | `page`, `perPage`, `indent` | http://localhost:8080/v40/cells?page=8&perPage=20            |
-|  GET   | **/cell-lines**      | `page`, `perPage`, `indent` | http://localhost:8080/v40/cell-lines?page=3&perPage=20       |
-|  GET   | **/cell_lines**      | `page`, `perPage`, `indent` | http://localhost:8080/v40/cell_lines?page=5&perPage=20       |
-|  GET   | **/cells/{id}**      | `indent`                    | http://localhost:8080/v40/cells/mcf-7?indent=true            |
-|  GET   | **/cell-lines/{id}** | `indent`                    | http://localhost:8080/v40/cell-lines/mcf-7?indent=true       |
-|  GET   | **/cell_lines/{id}** | `indent`                    | http://localhost:8080/v40/cell_lines/mcf-7?indent=true       |
-|  GET   | **/refs**            | `page`, `perPage`, `indent` | http://localhost:8080/v40/refs?page=1&perPage=10&indent=true |
-|  GET   | **/xrefs**           | `indent`                    | http://localhost:8080/v40/xrefs?indent=true                  |
-|  GET   | **/stats**           | `indent`                    | http://localhost:8080/v40/stats                              |
-
-Always prefix endpoints with the current version number when making a request (ie. the `v40` in `http://localhost:8080/v40/<endpoint>`).
-
-Parameters need not be present in request URLs. When parameters are not included in request, they are set to their default values. The following are their default values:
-
-| Parameters | Default Values |
-| :--------- | :------------: |
-| `page`     |      `1`       |
-| `perPage`  |      `10`      |
-| `indent`   |     `true`     |
-
-All responses are in `json` format. Endpoints that contain `page` and `perPage` parameters will have a `meta` field in their response containing pagination information, as well as the total number of records under the requested resource type. Such a response will look as follows:
-
-```json
-{
-    "meta": {
-        "page": ,
-        "perPage": ,
-        "lastPage": ,
-        "total":
-    },
-    "data": []
-}
-```
+Alternatively, you can also build the api first `./build.sh`, then run one of the generated executables inside `bin` directory at the root of the project.
 
 ## Contributing
 
