@@ -20,13 +20,13 @@ func main() {
 
 	sentryDsn := os.Getenv("CELLOSAURUS_SENTRY_DSN")
 	if sentryDsn == "" {
-		log.Println("[WARNING] CELLOSAURUS_SENTRY_DSN env missing")
+		log.Print("[WARNING] CELLOSAURUS_SENTRY_DSN env missing")
 	}
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn: sentryDsn,
 	})
 	if err != nil {
-		log.Println(fmt.Sprintf("[WARNING] sentry.Init: %s", err))
+		log.Print(fmt.Sprintf("[WARNING] sentry.Init: %s", err))
 	}
 
 	api.Init(ctx)
