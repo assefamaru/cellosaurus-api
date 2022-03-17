@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	// parse cellosaurus.txt - version 40
-	// raw data starts on line 55
+	// parse cellosaurus.txt
+	// raw data starts on line 55 (version 40)
 	scanRawCellData(
 		55,
 		getFilePath("cellosaurus", "cellosaurus.txt"),
@@ -19,8 +19,8 @@ func main() {
 		getFilePath("data", "cell_attributes.csv"),
 	)
 
-	// parse cellosaurus_refs.txt - version 40
-	// raw data starts on line 38
+	// parse cellosaurus_refs.txt
+	// raw data starts on line 38 (version 40)
 	scanRawRefData(
 		38,
 		getFilePath("cellosaurus", "cellosaurus_refs.txt"),
@@ -28,16 +28,16 @@ func main() {
 		getFilePath("data", "ref_attributes.csv"),
 	)
 
-	// parse cellosaurus_xrefs.txt - version 40
-	// raw data starts on line 118
+	// parse cellosaurus_xrefs.txt
+	// raw data starts on line 118 (version 40)
 	scanRawCrossRefData(
 		118,
 		getFilePath("cellosaurus", "cellosaurus_xrefs.txt"),
 		getFilePath("data", "xrefs.csv"),
 	)
 
-	// stats from cellosaurus_relnotes.txt - version 40
-	// manually entered for simplicity below
+	// stats from cellosaurus_relnotes.txt
+	// manually entered for simplicity below (version 40)
 	scanRelNoteStats(getFilePath("data", "statistics.csv"))
 }
 
