@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
+
 echo "== initialize submodules =="
 git submodule update --init --recursive
 

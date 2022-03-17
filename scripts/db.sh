@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
+
 echo "== starting script to recreate db locally =="
 
 echo "--"

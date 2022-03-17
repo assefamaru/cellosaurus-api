@@ -1,6 +1,8 @@
 #!/bin/bash
 
-rm -rf ../build
+cd "$(dirname "$0")"
+
+rm -rf ../bin
 
 package=$1
 if [[ -z "$package" ]]; then
