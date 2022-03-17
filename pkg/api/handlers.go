@@ -8,15 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Renders responses applying indentation settings.
-func indentRenderer(c *gin.Context, data interface{}, indent bool) {
-	if indent {
-		c.IndentedJSON(http.StatusOK, data)
-	} else {
-		c.JSON(http.StatusOK, data)
-	}
-}
-
 // GET /cell-lines.
 func ListCells(c *gin.Context) {
 	meta, err := getMeta(c, "cells")
@@ -85,4 +76,13 @@ func ListStatistics(c *gin.Context) {
 		return
 	}
 	indentRenderer(c, stats, indent)
+}
+
+// Renders responses applying indentation settings.
+func indentRenderer(c *gin.Context, data interface{}, indent bool) {
+	if indent {
+		c.IndentedJSON(http.StatusOK, data)
+	} else {
+		c.JSON(http.StatusOK, data)
+	}
 }

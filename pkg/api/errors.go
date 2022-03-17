@@ -12,8 +12,16 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-func logSentry(err error) {
-	sentry.CaptureException(err)
+func BadRequest(c *gin.Context) {
+	errRenderer(c, http.StatusBadRequest, "Bad Request", false)
+}
+
+func NotFound(c *gin.Context) {
+	errRenderer(c, http.StatusNotFound, "Resource Not Found", false)
+}
+
+func InternalServerError(c *gin.Context) {
+	errRenderer(c, http.StatusInternalServerError, "Internal Server Error", false)
 }
 
 func errRenderer(c *gin.Context, status int, message string, indent bool) {
@@ -28,14 +36,6 @@ func errRenderer(c *gin.Context, status int, message string, indent bool) {
 	}
 }
 
-func BadRequest(c *gin.Context) {
-	errRenderer(c, http.StatusBadRequest, "Bad Request", false)
-}
-
-func NotFound(c *gin.Context) {
-	errRenderer(c, http.StatusNotFound, "Resource Not Found", false)
-}
-
-func InternalServerError(c *gin.Context) {
-	errRenderer(c, http.StatusInternalServerError, "Internal Server Error", false)
+func logSentry(err error) {
+	sentry.CaptureException(err)
 }
