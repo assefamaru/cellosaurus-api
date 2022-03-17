@@ -9,38 +9,10 @@ import (
 	"strings"
 )
 
-func main() {
-	// parse cellosaurus.txt
-	// raw data starts on line 55 (version 40)
-	scanRawCellData(
-		55,
-		getFilePath("cellosaurus", "cellosaurus.txt"),
-		getFilePath("data", "cells.csv"),
-		getFilePath("data", "cell_attributes.csv"),
-	)
-
-	// parse cellosaurus_refs.txt
-	// raw data starts on line 38 (version 40)
-	scanRawRefData(
-		38,
-		getFilePath("cellosaurus", "cellosaurus_refs.txt"),
-		getFilePath("data", "refs.csv"),
-		getFilePath("data", "ref_attributes.csv"),
-	)
-
-	// parse cellosaurus_xrefs.txt
-	// raw data starts on line 118 (version 40)
-	scanRawCrossRefData(
-		118,
-		getFilePath("cellosaurus", "cellosaurus_xrefs.txt"),
-		getFilePath("data", "xrefs.csv"),
-	)
-
-	// stats from cellosaurus_relnotes.txt
-	// manually entered for simplicity below (version 40)
-	scanRelNoteStats(getFilePath("data", "statistics.csv"))
-}
-
+// Cell line attributes that only appear once
+// (one line per cell) in text file raw data.
+// Multiple line entries are parsed in the
+// form [{accession, attribute, content}...].
 type Cell struct {
 	Identifier string
 	Accession  string
@@ -50,6 +22,48 @@ type Cell struct {
 	Age        string
 	Category   string
 	Date       string
+}
+
+// XRef raw data structure.
+type XRef struct {
+	Abbrev string
+	Name   string
+	Server string
+	URL    string
+	Term   string
+	Cat    string
+}
+
+func main() {
+	// Parse cellosaurus.txt
+	// Raw data starts on line 55 (version 40)
+	scanRawCellData(
+		55,
+		getFilePath("cellosaurus", "cellosaurus.txt"),
+		getFilePath("data", "cells.csv"),
+		getFilePath("data", "cell_attributes.csv"),
+	)
+
+	// Parse cellosaurus_refs.txt
+	// Raw data starts on line 38 (version 40)
+	scanRawRefData(
+		38,
+		getFilePath("cellosaurus", "cellosaurus_refs.txt"),
+		getFilePath("data", "refs.csv"),
+		getFilePath("data", "ref_attributes.csv"),
+	)
+
+	// Parse cellosaurus_xrefs.txt
+	// Raw data starts on line 118 (version 40)
+	scanRawCrossRefData(
+		118,
+		getFilePath("cellosaurus", "cellosaurus_xrefs.txt"),
+		getFilePath("data", "xrefs.csv"),
+	)
+
+	// Stats from cellosaurus_relnotes.txt
+	// Manually entered for simplicity below (version 40)
+	scanRelNoteStats(getFilePath("data", "statistics.csv"))
 }
 
 // Reads and parses cellosaurus.txt.
@@ -243,15 +257,6 @@ func scanRawRefData(lineStart int, sourceFile string, destFiles ...string) {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-type XRef struct {
-	Abbrev string
-	Name   string
-	Server string
-	URL    string
-	Term   string
-	Cat    string
 }
 
 func scanRawCrossRefData(lineStart int, sourceFile string, destFile string) {
