@@ -20,7 +20,7 @@ func Init(ctx Context) {
 
 	// This grouping corresponds to
 	// the cellosaurus data version
-	v := router.Group("/v40")
+	v := router.Group("/v41")
 	for _, route := range routes {
 		v.Handle(route.Method, route.Endpoint, route.Handler)
 	}
