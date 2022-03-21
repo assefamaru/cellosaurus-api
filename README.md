@@ -16,8 +16,8 @@ All responses are in `json` format.
 
 The following previous versions are also available for the live API:
 
-| Version |                            Base URL                            |
-| :-----: | :------------------------------------------------------------: |
+| Version | Base URL                                                       |
+| :-----: | :------------------------------------------------------------- |
 |  `40`   | [`https://api.cellosaur.us/v40`](https://api.cellosaur.us/v40) |
 
 See [Tags](https://github.com/assefamaru/cellosaurus-api/tags) to build any previous versions locally.
