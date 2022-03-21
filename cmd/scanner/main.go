@@ -359,7 +359,7 @@ func scanRelNoteStats(destFile string) {
 			"7,\"crossReferences\",\"396097\"\n" +
 			"8,\"references\",\"138234\"\n" +
 			"9,\"distinctPublications\",\"23257\"\n" +
-			"10,\"webLinks\",\"23257\"\n" +
+			"10,\"webLinks\",\"13484\"\n" +
 			"11,\"cellLinesWithStrProfiles\",\"8032\"\n" +
 			"12,\"version\",\"40\"\n",
 	); err != nil {
