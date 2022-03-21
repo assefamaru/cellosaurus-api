@@ -36,7 +36,7 @@ type XRef struct {
 
 func main() {
 	// Parse cellosaurus.txt
-	// Raw data starts on line 55 (version 40)
+	// Raw data starts on line 55 (version 41)
 	scanRawCellData(
 		55,
 		getFilePath("cellosaurus", "cellosaurus.txt"),
@@ -45,7 +45,7 @@ func main() {
 	)
 
 	// Parse cellosaurus_refs.txt
-	// Raw data starts on line 38 (version 40)
+	// Raw data starts on line 38 (version 41)
 	scanRawRefData(
 		38,
 		getFilePath("cellosaurus", "cellosaurus_refs.txt"),
@@ -54,7 +54,7 @@ func main() {
 	)
 
 	// Parse cellosaurus_xrefs.txt
-	// Raw data starts on line 118 (version 40)
+	// Raw data starts on line 118 (version 41)
 	scanRawCrossRefData(
 		118,
 		getFilePath("cellosaurus", "cellosaurus_xrefs.txt"),
@@ -62,7 +62,7 @@ func main() {
 	)
 
 	// Stats from cellosaurus_relnotes.txt
-	// Manually entered for simplicity below (version 40)
+	// Manually entered for simplicity below (version 41)
 	scanRelNoteStats(getFilePath("data", "statistics.csv"))
 }
 
@@ -350,18 +350,18 @@ func scanRelNoteStats(destFile string) {
 	writer := bufio.NewWriter(csv)
 	if _, err := writer.WriteString(
 		"\"\",\"attribute\",\"count\"\n" +
-			"1,\"cellLinesTotal\",\"134839\"\n" +
-			"2,\"cellLinesHuman\",\"101276\"\n" +
-			"3,\"cellLinesMouse\",\"22999\"\n" +
-			"4,\"cellLinesRat\",\"2498\"\n" +
-			"5,\"species\",\"747\"\n" +
-			"6,\"synonyms\",\"96745\"\n" +
-			"7,\"crossReferences\",\"396097\"\n" +
-			"8,\"references\",\"138234\"\n" +
-			"9,\"distinctPublications\",\"23257\"\n" +
-			"10,\"webLinks\",\"23257\"\n" +
-			"11,\"cellLinesWithStrProfiles\",\"8032\"\n" +
-			"12,\"version\",\"40\"\n",
+			"1,\"cellLinesTotal\",\"136313\"\n" +
+			"2,\"cellLinesHuman\",\"102081\"\n" +
+			"3,\"cellLinesMouse\",\"23519\"\n" +
+			"4,\"cellLinesRat\",\"2537\"\n" +
+			"5,\"species\",\"759\"\n" +
+			"6,\"synonyms\",\"98213\"\n" +
+			"7,\"crossReferences\",\"400865\"\n" +
+			"8,\"references\",\"140507\"\n" +
+			"9,\"distinctPublications\",\"23950\"\n" +
+			"10,\"webLinks\",\"13347\"\n" +
+			"11,\"cellLinesWithStrProfiles\",\"8134\"\n" +
+			"12,\"version\",\"41\"\n",
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -383,7 +383,7 @@ func csvSprintf(addLineNumber bool, lineNumber int, words ...string) string {
 
 // Returns the absolute path to read/write file.
 func getFilePath(dir string, file string) string {
-	root, err := filepath.Abs("../")
+	root, err := filepath.Abs(".")
 	if err != nil {
 		log.Fatal(err)
 	}

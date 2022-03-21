@@ -1,5 +1,6 @@
 #!/bin/bash
 
-cd "$(dirname "$0")"
+ROOT="$(dirname "$0")"
+cd "$ROOT/.."
 
-PORT=8080 go run ../cmd/api/main.go
+PORT=8080 go run cmd/api/main.go

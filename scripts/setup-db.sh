@@ -1,8 +1,9 @@
 #!/bin/bash
 
-cd "$(dirname "$0")"
+ROOT="$(dirname "$0")"
+cd "$ROOT"
 
-echo "== starting script to recreate db locally =="
+echo "== Recreating DB locally =="
 
 echo "--"
 read -p "New database name: " database
@@ -105,4 +106,4 @@ ENCLOSED BY '"'
 IGNORE 1 LINES;
 EOF
 
-echo "== DONE =="
+echo "== DB setup complete =="
