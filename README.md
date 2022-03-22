@@ -94,7 +94,7 @@ export PORT=xyz                # eg. 8080
 4. Run the API locally:
 
 ```bash
-./run.sh
+./scripts/run.sh
 ```
 
 Alternatively, you can run the API via one of the generated builds inside `bin` directory.
