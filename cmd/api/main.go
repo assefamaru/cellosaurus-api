@@ -1,33 +1,52 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"flag"
 	"os"
+	"time"
 
 	"github.com/assefamaru/cellosaurus-api/pkg/api"
+	"github.com/assefamaru/cellosaurus-api/pkg/logging"
 	"github.com/getsentry/sentry-go"
+	"github.com/gin-contrib/cors"
+)
+
+const (
+	sentryDsnEnv = "CELLOSAURUS_SENTRY_DSN"
 )
 
 func main() {
-	var ctx api.Context
+	mode := flag.String("mode", fromEnvOrDefault("MODE", "release"), "Gin server mode")
+	port := flag.String("port", fromEnvOrDefault("PORT", "8080"), "API server port")
+	flag.Parse()
 
-	ctx.Mode = "release"
-	ctx.Port = os.Getenv("PORT")
-	if ctx.Port == "" {
-		log.Fatal("PORT must be set")
-	}
-
-	sentryDsn := os.Getenv("CELLOSAURUS_SENTRY_DSN")
+	sentryDsn := os.Getenv(sentryDsnEnv)
 	if sentryDsn == "" {
-		log.Print("[WARNING] CELLOSAURUS_SENTRY_DSN env missing")
+		logging.Warningf("missing environment variable: %v", sentryDsnEnv)
 	}
-	err := sentry.Init(sentry.ClientOptions{
-		Dsn: sentryDsn,
-	})
-	if err != nil {
-		log.Print(fmt.Sprintf("[WARNING] sentry.Init: %s", err))
+	options := sentry.ClientOptions{Dsn: sentryDsn}
+	if err := sentry.Init(options); err != nil {
+		logging.Warningf("sentry.Init: %v", err)
 	}
 
-	api.Init(ctx)
+	cors := &cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}
+
+	server := api.NewServer(*mode, *port, cors)
+	server.Run()
+}
+
+// fromEnvOrDefault returns the environment variable value, if present,
+// or the specified default value.
+func fromEnvOrDefault(env, defaultVal string) string {
+	if val := os.Getenv(env); val != "" {
+		return val
+	}
+	return defaultVal
 }

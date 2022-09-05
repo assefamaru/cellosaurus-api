@@ -1,34 +1,51 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+)
 
-type Context struct {
-	Mode string
-	Port string
+type Server struct {
+	mode string
+	port string
+
+	cors *cors.Config
 }
 
-func Init(ctx Context) {
-	// Set db credentials
-	SetupMySQLConfig()
-
-	// Set gin mode
-	gin.SetMode(ctx.Mode)
-
-	// Gin router with default middleware:
-	// logger and recovery (crash-free) middleware
-	router := gin.Default()
-
-	// This grouping corresponds to
-	// the cellosaurus data version
-	v := router.Group("/v41")
-	for _, route := range routes {
-		v.Handle(route.Method, route.Endpoint, route.Handler)
+// NewServer returns a new Server instance.
+func NewServer(mode, port string, cors *cors.Config) *Server {
+	return &Server{
+		mode: mode,
+		port: port,
+		cors: cors,
 	}
+}
 
-	// If no routers match request URL,
-	// return 400 (Bad Request)
+// Run is the Server runnable.
+func (s *Server) Run() {
+	gin.SetMode(s.mode)
+
+	router := gin.New()
+
+	router.Use(gin.Recovery())
+	router.Use(cors.New(*s.cors))
+
+	// This grouping/versioning should match
+	// the Cellosaurus data version.
+	api := router.Group("/v41")
+
+	api.GET("/", ListStatistics)
+	api.GET("/cells", ListCells)
+	api.GET("/cell-lines", ListCells)
+	api.GET("/cell_lines", ListCells)
+	api.GET("/cells/*id", FindCell)
+	api.GET("/cell-lines/*id", FindCell)
+	api.GET("/cell_lines/*id", FindCell)
+	api.GET("/refs", ListReferences)
+	api.GET("/xrefs", ListCrossReferences)
+	api.GET("/stats", ListStatistics)
+
 	router.NoRoute(BadRequest)
 
-	// Listen and serve on 0.0.0.0:PORT
-	router.Run(":" + ctx.Port)
+	router.Run(":" + s.port)
 }
