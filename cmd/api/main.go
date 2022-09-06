@@ -7,26 +7,17 @@ import (
 
 	"github.com/assefamaru/cellosaurus-api/pkg/api"
 	"github.com/assefamaru/cellosaurus-api/pkg/logging"
-	"github.com/getsentry/sentry-go"
 	"github.com/gin-contrib/cors"
 )
 
-const (
-	sentryDsnEnv = "CELLOSAURUS_SENTRY_DSN"
-)
-
 func main() {
-	mode := flag.String("mode", fromEnvOrDefault("MODE", "release"), "Gin server mode")
-	port := flag.String("port", fromEnvOrDefault("PORT", "8080"), "API server port")
+	mode := flag.String("mode", fromEnvOrDefaultVal("MODE", "release"), "Gin server mode")
+	port := flag.String("port", fromEnvOrDefaultVal("PORT", "8080"), "API server port")
+	sentryDSN := flag.String("sentry-dsn", fromEnvOrDefaultVal("CELLOSAURUS_SENTRY_DSN", ""), "Sentry DSN")
 	flag.Parse()
 
-	sentryDsn := os.Getenv(sentryDsnEnv)
-	if sentryDsn == "" {
-		logging.Warningf("missing environment variable: %v", sentryDsnEnv)
-	}
-	options := sentry.ClientOptions{Dsn: sentryDsn}
-	if err := sentry.Init(options); err != nil {
-		logging.Warningf("sentry.Init: %v", err)
+	if err := logging.NewSentryLogger(*sentryDSN); err != nil {
+		logging.Warningf("initialize Sentry SDK: %v", err)
 	}
 
 	cors := &cors.Config{
@@ -42,9 +33,9 @@ func main() {
 	server.Run()
 }
 
-// fromEnvOrDefault returns the environment variable value, if present,
+// fromEnvOrDefaultVal returns an environment variable value if it exists,
 // or the specified default value.
-func fromEnvOrDefault(env, defaultVal string) string {
+func fromEnvOrDefaultVal(env, defaultVal string) string {
 	if val := os.Getenv(env); val != "" {
 		return val
 	}
