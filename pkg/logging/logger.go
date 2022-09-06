@@ -1,55 +1,34 @@
 package logging
 
-import (
-	"log"
-	"time"
-)
-
-const (
-	datetimeFormat = "2006-01-02 15:04:05"
-)
-
-// Defaultf writes Default severity log messages.
+// Defaultf writes DEFAULT severity log events.
 func Defaultf(format string, v ...any) {
-	writef(Default, format, v...)
+	writef(DEFAULT, format, v...)
 }
 
-// Infof writes Info severity log messages.
+// Infof writes INFO severity log events.
 func Infof(format string, v ...any) {
-	writef(Info, format, v...)
+	writef(INFO, format, v...)
 }
 
-// Warningf writes Warning severity log messages.
+// Warningf writes WARNING severity log events.
 func Warningf(format string, v ...any) {
-	writef(Warning, format, v...)
+	writef(WARNING, format, v...)
 }
 
-// Errorf writes Error severity log messages.
+// Errorf writes ERROR severity log events.
 func Errorf(format string, v ...any) {
-	writef(Error, format, v...)
+	writef(ERROR, format, v...)
 }
 
-// Criticalf writes Critical severity log messages.
+// Criticalf writes CRITICAL severity log events.
 func Criticalf(format string, v ...any) {
-	writef(Critical, format, v...)
+	writef(CRITICAL, format, v...)
 }
 
-// writef prefixes all log events with the right severity and
-// current timestamp.
-func writef(sev Severity, format string, v ...any) {
-	var severity string
-	switch sev {
-	case Default:
-		severity = "DEFAULT"
-	case Info:
-		severity = "INFO"
-	case Warning:
-		severity = "WARNING"
-	case Error:
-		severity = "ERROR"
-	case Critical:
-		severity = "CRITICAL"
-	}
-	log.Printf("%-8s %s ", severity, time.Now().Format(datetimeFormat))
-	log.Printf(format, v...)
+// writef writes log events with the appropriate severity.
+func writef(severity Severity, format string, v ...any) {
+	logger := NewLocalLogger(severity)
+	defer logger.Close()
+
+	logger.Printf(format, v...)
 }

@@ -1,11 +1,11 @@
 package logging
 
-type Severity int32
+type Severity string
 
 const (
-	Default Severity = iota
-	Info
-	Warning
-	Error
-	Critical
+	DEFAULT  Severity = "DEFAULT"
+	INFO     Severity = "INFO"
+	WARNING  Severity = "WARNING"
+	ERROR    Severity = "ERROR"
+	CRITICAL Severity = "CRITICAL"
 )
