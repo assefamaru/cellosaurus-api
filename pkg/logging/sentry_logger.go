@@ -9,8 +9,8 @@ func NewSentryLogger(sentryDSN string) error {
 	return sentry.Init(sentry.ClientOptions{Dsn: sentryDSN})
 }
 
-// Sentry writes error events to Sentry. Ensure NewSentryLogger()
+// LogSentry writes errors to Sentry. Ensure NewSentryLogger()
 // is called first to initialize the Sentry SDK with options.
-func Sentry(err error) {
+func LogSentry(err error) {
 	sentry.CaptureException(err)
 }

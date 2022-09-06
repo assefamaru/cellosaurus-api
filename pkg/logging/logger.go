@@ -1,5 +1,7 @@
 package logging
 
+import "fmt"
+
 // Defaultf writes DEFAULT severity log events.
 func Defaultf(format string, v ...any) {
 	writef(DEFAULT, format, v...)
@@ -29,6 +31,11 @@ func Criticalf(format string, v ...any) {
 func writef(severity Severity, format string, v ...any) {
 	logger := NewLocalLogger(severity)
 	defer logger.Close()
+
+	switch severity {
+	case WARNING, ERROR, CRITICAL:
+		LogSentry(fmt.Errorf(format, v...))
+	}
 
 	logger.Printf(format, v...)
 }
