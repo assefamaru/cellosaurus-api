@@ -1,0 +1,10 @@
+{
+  "go.useLanguageServer": true,
+  "go.toolsManagement.autoUpdate": true,
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "files.associations": {
+    "*.go": "go"
+  }
+}
