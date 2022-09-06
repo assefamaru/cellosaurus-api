@@ -17,7 +17,7 @@ func main() {
 	flag.Parse()
 
 	if err := logging.NewSentryLogger(*sentryDSN); err != nil {
-		logging.Warningf("initialize Sentry SDK: %v", err)
+		logging.Errorf("initialize Sentry SDK: %v", err)
 	}
 
 	cors := &cors.Config{
