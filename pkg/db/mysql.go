@@ -72,7 +72,7 @@ func (m *MySQL) Connect() (*sql.DB, error) {
 	return db, nil
 }
 
-// DSN returns the Data Source Name from MySQL suitable for sql.Open.
+// DSN returns the MySQL Data Source Name suitable for sql.Open.
 func (m *MySQL) DSN() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", m.user, m.pass, m.host, m.port, m.db)
 }
