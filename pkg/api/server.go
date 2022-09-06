@@ -32,7 +32,7 @@ func (s *Server) Run() {
 
 	// This grouping/versioning matches
 	// the Cellosaurus data version.
-	api := router.Group("/v41")
+	api := router.Group("/v42")
 
 	api.GET("/", ListStatistics)
 	api.GET("/cells", ListCells)

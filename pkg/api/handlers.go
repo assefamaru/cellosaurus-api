@@ -5,84 +5,77 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/assefamaru/cellosaurus-api/pkg/api/core"
 	"github.com/gin-gonic/gin"
 )
 
-// GET /cell-lines.
+// GET /cells.
 func ListCells(c *gin.Context) {
-	meta, err := getMeta(c, "cells")
+	meta, err := newMeta(c, "cells")
 	if err != nil {
-		InternalServerError(c)
+		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	indent := getIndent(c)
-	cells := Cells{Meta: meta}
-	if err = cells.List(); err != nil {
-		InternalServerError(c)
+
+	cells, err := core.ListCells(paginationFrom(meta), meta.PerPage)
+	if err != nil {
+		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	indentRenderer(c, cells, indent)
+
+	c.JSON(http.StatusOK, gin.H{"meta": meta, "data": cells})
 }
 
-// GET /cell-lines/:id.
+// GET /cells/:id.
 func FindCell(c *gin.Context) {
-	indent := getIndent(c)
-	cell := Cell{Identifier: strings.TrimPrefix(c.Param("id"), "/")}
-	err := cell.Find()
-	if err != nil {
-		if err == sql.ErrNoRows {
-			NotFound(c)
-		} else {
-			InternalServerError(c)
-		}
+	cell, err := core.FetchCell(strings.TrimPrefix(c.Param("id"), "/"))
+	if err == sql.ErrNoRows {
+		errRenderer(c, http.StatusNotFound, err.Error())
 		return
 	}
-	indentRenderer(c, cell, indent)
+	if err != nil {
+		errRenderer(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, cell)
 }
 
 // GET /refs.
 func ListReferences(c *gin.Context) {
-	meta, err := getMeta(c, "refs")
+	meta, err := newMeta(c, "refs")
 	if err != nil {
-		InternalServerError(c)
+		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	indent := getIndent(c)
-	refs := References{Meta: meta}
-	if err = refs.List(); err != nil {
-		InternalServerError(c)
+
+	refs, err := core.ListReferences(paginationFrom(meta), meta.PerPage)
+	if err != nil {
+		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	indentRenderer(c, refs, indent)
+
+	c.JSON(http.StatusOK, gin.H{"meta": meta, "data": refs})
 }
 
 // GET /xrefs.
 func ListCrossReferences(c *gin.Context) {
-	indent := getIndent(c)
-	xrefs := XRefs{}
-	if err := xrefs.List(); err != nil {
-		InternalServerError(c)
+	xrefs, err := core.ListXRefs()
+	if err != nil {
+		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	indentRenderer(c, xrefs, indent)
+
+	c.JSON(http.StatusOK, xrefs)
 }
 
 // GET /stats.
 func ListStatistics(c *gin.Context) {
-	indent := getIndent(c)
-	stats, err := ListStats()
+	stats, err := core.FetchStatistics()
 	if err != nil {
-		InternalServerError(c)
+		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	indentRenderer(c, stats, indent)
-}
 
-// Renders responses applying indentation settings.
-func indentRenderer(c *gin.Context, data interface{}, indent bool) {
-	if indent {
-		c.IndentedJSON(http.StatusOK, data)
-	} else {
-		c.JSON(http.StatusOK, data)
-	}
+	c.JSON(http.StatusOK, stats)
 }
