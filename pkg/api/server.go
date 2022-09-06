@@ -34,16 +34,16 @@ func (s *Server) Run() {
 	// the Cellosaurus data version.
 	api := router.Group("/v42")
 
-	api.GET("/", ListStatistics)
 	api.GET("/cells", ListCells)
 	api.GET("/cell-lines", ListCells)
 	api.GET("/cell_lines", ListCells)
-	api.GET("/cells/*id", FindCell)
-	api.GET("/cell-lines/*id", FindCell)
-	api.GET("/cell_lines/*id", FindCell)
+	api.GET("/cells/*id", FetchCell)
+	api.GET("/cell-lines/*id", FetchCell)
+	api.GET("/cell_lines/*id", FetchCell)
 	api.GET("/refs", ListReferences)
 	api.GET("/xrefs", ListCrossReferences)
-	api.GET("/stats", ListStatistics)
+	api.GET("/stats", FetchStatistics)
+	api.GET("/", FetchStatistics)
 
 	router.NoRoute(BadRequest)
 

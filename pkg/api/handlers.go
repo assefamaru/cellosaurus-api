@@ -27,7 +27,7 @@ func ListCells(c *gin.Context) {
 }
 
 // GET /cells/:id.
-func FindCell(c *gin.Context) {
+func FetchCell(c *gin.Context) {
 	cell, err := core.FetchCell(strings.TrimPrefix(c.Param("id"), "/"))
 	if err == sql.ErrNoRows {
 		errRenderer(c, http.StatusNotFound, err.Error())
@@ -70,7 +70,7 @@ func ListCrossReferences(c *gin.Context) {
 }
 
 // GET /stats.
-func ListStatistics(c *gin.Context) {
+func FetchStatistics(c *gin.Context) {
 	stats, err := core.FetchStatistics()
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
