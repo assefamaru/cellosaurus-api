@@ -8,7 +8,6 @@ import (
 type Server struct {
 	mode string
 	port string
-
 	cors *cors.Config
 }
 
@@ -29,8 +28,9 @@ func (s *Server) Run() {
 
 	router.Use(gin.Recovery())
 	router.Use(cors.New(*s.cors))
+	router.Use(Logger())
 
-	// This grouping/versioning should match
+	// This grouping/versioning matches
 	// the Cellosaurus data version.
 	api := router.Group("/v41")
 
