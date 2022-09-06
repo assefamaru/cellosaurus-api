@@ -28,14 +28,15 @@ func Criticalf(format string, v ...any) {
 }
 
 // writef writes log events with the appropriate severity.
+// Higher severity levels are also logged to Sentry.
 func writef(severity Severity, format string, v ...any) {
-	logger := NewLocalLogger(severity)
-	defer logger.Close()
-
 	switch severity {
 	case WARNING, ERROR, CRITICAL:
 		LogSentry(fmt.Errorf(format, v...))
 	}
+
+	logger := NewLocalLogger(severity)
+	defer logger.Close()
 
 	logger.Printf(format, v...)
 }
