@@ -17,6 +17,12 @@ func Logger() gin.HandlerFunc {
 
 		latency := time.Since(t)
 		path := "/" + strings.TrimPrefix(c.Request.URL.Path, "/")
-		logging.Infof("%6s %s (%v) - %s", c.Request.Method, path, latency, c.ClientIP())
+		logFormat := "%6s %s (%v) - %s"
+
+		if c.Writer.Status() < 400 {
+			logging.Infof(logFormat, c.Request.Method, path, latency, c.ClientIP())
+		} else {
+			logging.Errorf(logFormat, c.Request.Method, path, latency, c.ClientIP())
+		}
 	}
 }

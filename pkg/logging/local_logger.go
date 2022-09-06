@@ -21,7 +21,7 @@ func NewLocalLogger(severity Severity) *LocalLogger {
 		prefix = fmt.Sprintf("%-8v ", severity)
 	}
 	return &LocalLogger{
-		Logger: log.New(os.Stdout, prefix, log.Ldate|log.Ltime|log.Lshortfile),
+		Logger: log.New(os.Stdout, prefix, log.Ldate|log.Ltime),
 	}
 }
 
