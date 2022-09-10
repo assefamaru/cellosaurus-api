@@ -60,7 +60,7 @@ func ListReferences(c *gin.Context) {
 
 // GET /xrefs.
 func ListCrossReferences(c *gin.Context) {
-	xrefs, err := core.ListXRefs()
+	xrefs, err := core.ListCrossReferences()
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
@@ -70,8 +70,14 @@ func ListCrossReferences(c *gin.Context) {
 }
 
 // GET /stats.
-func FetchStatistics(c *gin.Context) {
-	stats, err := core.FetchStatistics()
+func ListStatistics(c *gin.Context) {
+	var version string
+	pathParts := strings.Split(c.Request.URL.Path, "/")
+	if len(pathParts) > 2 {
+		version = pathParts[2]
+	}
+
+	stats, err := core.ListStatistics(version)
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return

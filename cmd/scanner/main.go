@@ -26,7 +26,7 @@ var settings = map[string]*versionConfig{
 }
 
 func main() {
-	version := flag.String("v", fromEnvOrDefaultVal("VERSION", latestVersion), "The current Cellosaurus data version")
+	version := flag.String("version", fromEnvOrDefaultVal("VERSION", latestVersion), "The current Cellosaurus data version")
 	flag.Parse()
 
 	if settings[*version] == nil {

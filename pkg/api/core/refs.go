@@ -16,7 +16,7 @@ type Reference struct {
 	Citation   string   `json:"citation"`
 }
 
-// ListReferences returns a list of paginated References.
+// ListReferences returns a list of paginated references.
 func ListReferences(from, to int) ([]*Reference, error) {
 	mysql, err := db.NewMySQLFromEnv()
 	if err != nil {
@@ -82,7 +82,7 @@ func ListReferences(from, to int) ([]*Reference, error) {
 	return references, nil
 }
 
-// CountReferences returns the total number of References.
+// CountReferences returns the total number of references.
 func CountReferences() (int, error) {
 	mysql, err := db.NewMySQLFromEnv()
 	if err != nil {
@@ -95,7 +95,7 @@ func CountReferences() (int, error) {
 	defer conn.Close()
 
 	var count string
-	query := "SELECT count FROM statistics WHERE attribute = 'references';"
+	query := "SELECT COUNT(*) FROM refs;"
 	if err := conn.QueryRow(query).Scan(&count); err != nil {
 		return -1, err
 	}

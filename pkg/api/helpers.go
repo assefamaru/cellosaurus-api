@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	maxResponseBatchSize = 100
+	maxResponseBatchSize = 1000
 )
 
 // Metadata for paginated results.
@@ -30,7 +30,7 @@ func newMeta(c *gin.Context, resourceType string) (*Meta, error) {
 		return nil, err
 	}
 
-	// Set max list response size per request.
+	// Set hard upper limit on number of records in response.
 	if perPage > maxResponseBatchSize {
 		perPage = maxResponseBatchSize
 	}

@@ -233,7 +233,7 @@ func CountCells() (int, error) {
 	defer conn.Close()
 
 	var count string
-	query := "SELECT count FROM statistics WHERE attribute = 'cellLinesTotal';"
+	query := "SELECT COUNT(*) FROM cells;"
 	if err := conn.QueryRow(query).Scan(&count); err != nil {
 		return -1, err
 	}
