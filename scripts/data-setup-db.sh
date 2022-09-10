@@ -1,9 +1,7 @@
 #!/bin/bash
 
 ROOT="$(dirname "$0")"
-cd "$ROOT"
-
-echo "== Recreating DB locally =="
+cd "$ROOT/.."
 
 echo "--"
 read -p "New database name: " database
@@ -12,7 +10,6 @@ read -s -p "MySQL password: " password
 echo
 echo "--"
 
-echo "== creating database tables, and loading csv data =="
 mysql --local_infile=1 -u"$user" -p"$password" <<EOF
 DROP DATABASE IF EXISTS $database;
 CREATE DATABASE $database;
@@ -36,7 +33,7 @@ CREATE TABLE cells(
     INDEX date (date)
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-LOAD DATA LOCAL INFILE '../data/cells.csv' INTO TABLE cells
+LOAD DATA LOCAL INFILE 'data/cells.csv' INTO TABLE cells
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 IGNORE 1 LINES;
@@ -49,7 +46,7 @@ CREATE TABLE cell_attributes(
     FOREIGN KEY (accession) REFERENCES cells(accession)
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-LOAD DATA LOCAL INFILE '../data/cell_attributes.csv' INTO TABLE cell_attributes
+LOAD DATA LOCAL INFILE 'data/cell_attributes.csv' INTO TABLE cell_attributes
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 IGNORE 1 LINES;
@@ -61,7 +58,7 @@ CREATE TABLE refs(
     INDEX identifier (identifier)
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-LOAD DATA LOCAL INFILE '../data/refs.csv' INTO TABLE refs
+LOAD DATA LOCAL INFILE 'data/refs.csv' INTO TABLE refs
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 IGNORE 1 LINES;
@@ -73,7 +70,7 @@ CREATE TABLE ref_attributes(
     content VARCHAR(1000) NOT NULL
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-LOAD DATA LOCAL INFILE '../data/ref_attributes.csv' INTO TABLE ref_attributes
+LOAD DATA LOCAL INFILE 'data/ref_attributes.csv' INTO TABLE ref_attributes
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 IGNORE 1 LINES;
@@ -89,21 +86,8 @@ CREATE TABLE xrefs(
     INDEX identifier (abbrev)
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-LOAD DATA LOCAL INFILE '../data/xrefs.csv' INTO TABLE xrefs
-FIELDS TERMINATED BY ','
-ENCLOSED BY '"'
-IGNORE 1 LINES;
-
-CREATE TABLE statistics(
-    id INT AUTO_INCREMENT primary key NOT NULL,
-    attribute VARCHAR(100) NOT NULL,
-    count VARCHAR(50) NOT NULL
-)
-ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-LOAD DATA LOCAL INFILE '../data/statistics.csv' INTO TABLE statistics
+LOAD DATA LOCAL INFILE 'data/xrefs.csv' INTO TABLE xrefs
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 IGNORE 1 LINES;
 EOF
-
-echo "== DB setup complete =="

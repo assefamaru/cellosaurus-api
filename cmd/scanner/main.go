@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	latestVersion = "41"
+	latestVersion = "42"
 )
 
 type versionConfig struct {
