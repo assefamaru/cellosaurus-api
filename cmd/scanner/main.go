@@ -1,391 +1,95 @@
 package main
 
 import (
-	"bufio"
+	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/assefamaru/cellosaurus-api/pkg/logging"
 )
 
-// Cell line attributes that only appear once
-// (one line per cell) in text file raw data.
-// Multiple line entries are parsed in the
-// form [{accession, attribute, content}...].
-type Cell struct {
-	Identifier string
-	Accession  string
-	Secondary  string
-	Synonyms   string
-	Sex        string
-	Age        string
-	Category   string
-	Date       string
+const (
+	latestVersion = "42"
+)
+
+type versionConfig struct {
+	startCellsTXT int // the line where raw data starts in cellosaurus.txt
+	startRefsTXT  int // the line where raw data starts in cellosaurus_refs.txt
+	startXRefsTXT int // the line where raw data starts in cellosaurus_xrefs.txt
 }
 
-// XRef raw data structure.
-type XRef struct {
-	Abbrev string
-	Name   string
-	Server string
-	URL    string
-	Term   string
-	Cat    string
+var settings = map[string]*versionConfig{
+	"41": {startCellsTXT: 55, startRefsTXT: 38, startXRefsTXT: 118},
+	"42": {startCellsTXT: 55, startRefsTXT: 38, startXRefsTXT: 118},
 }
 
 func main() {
+	version := flag.String("version", fromEnvOrDefaultVal("VERSION", latestVersion), "The current Cellosaurus data version")
+	flag.Parse()
+
+	if settings[*version] == nil {
+		logging.Errorf("unknown version: %v", *version)
+		os.Exit(1)
+	}
+
+	config := settings[*version]
+
 	// Parse cellosaurus.txt
-	// Raw data starts on line 55 (version 41)
-	scanRawCellData(
-		55,
-		getFilePath("cellosaurus", "cellosaurus.txt"),
-		getFilePath("data", "cells.csv"),
-		getFilePath("data", "cell_attributes.csv"),
-	)
+	cellsTXT := absoluteFilePath("cellosaurus", "cellosaurus.txt")
+	cellsCSV := absoluteFilePath("data", "cells.csv")
+	cellAttrsCSV := absoluteFilePath("data", "cell_attributes.csv")
+	if err := scanCellsTXT(config.startCellsTXT, cellsTXT, cellsCSV, cellAttrsCSV); err != nil {
+		logging.Errorf("scan cellosaurus.txt: %v", err)
+		os.Exit(1)
+	}
 
 	// Parse cellosaurus_refs.txt
-	// Raw data starts on line 38 (version 41)
-	scanRawRefData(
-		38,
-		getFilePath("cellosaurus", "cellosaurus_refs.txt"),
-		getFilePath("data", "refs.csv"),
-		getFilePath("data", "ref_attributes.csv"),
-	)
+	refsTXT := absoluteFilePath("cellosaurus", "cellosaurus_refs.txt")
+	refsCSV := absoluteFilePath("data", "refs.csv")
+	refAttrsCSV := absoluteFilePath("data", "ref_attributes.csv")
+	if err := scanRefsTXT(config.startRefsTXT, refsTXT, refsCSV, refAttrsCSV); err != nil {
+		logging.Errorf("scan cellosaurus_refs.txt: %v", err)
+		os.Exit(1)
+	}
 
 	// Parse cellosaurus_xrefs.txt
-	// Raw data starts on line 118 (version 41)
-	scanRawCrossRefData(
-		118,
-		getFilePath("cellosaurus", "cellosaurus_xrefs.txt"),
-		getFilePath("data", "xrefs.csv"),
-	)
-
-	// Stats from cellosaurus_relnotes.txt
-	// Manually entered for simplicity below (version 41)
-	scanRelNoteStats(getFilePath("data", "statistics.csv"))
-}
-
-// Reads and parses cellosaurus.txt.
-// Writes parsed data to csv file(s).
-func scanRawCellData(lineStart int, sourceFile string, destFiles ...string) {
-	if len(destFiles) < 2 {
-		log.Fatal("Error: need at least two destination file paths")
-	}
-
-	txt, err := os.Open(sourceFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer txt.Close()
-
-	csvCells, err := os.Create(destFiles[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer csvCells.Close()
-
-	csvAttrs, err := os.Create(destFiles[1])
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer csvAttrs.Close()
-
-	scanner := bufio.NewScanner(txt)
-	writerCells := bufio.NewWriter(csvCells)
-	writerAttrs := bufio.NewWriter(csvAttrs)
-
-	if _, err := writerCells.WriteString(
-		"\"identifier\",\"accession\",\"secondary\",\"synonyms\",\"sex\",\"age\",\"category\",\"date\"\n",
-	); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writerAttrs.WriteString("\"\",\"accession\",\"attribute\",\"content\"\n"); err != nil {
-		log.Fatal(err)
-	}
-
-	start := 1
-	lineNumber := 1
-	cell := Cell{}
-	code := ""
-	value := ""
-	for scanner.Scan() {
-		if start < lineStart {
-			start = start + 1
-			continue
-		}
-
-		line := scanner.Text()
-		dict := strings.Split(line, "   ")
-		code = dict[0]
-		if len(dict) > 1 {
-			value = dict[1]
-		}
-
-		switch code {
-		case "ID":
-			cell.Identifier = value
-		case "AC":
-			cell.Accession = value
-		case "AS":
-			cell.Secondary = value
-		case "SY":
-			cell.Synonyms = value
-		case "SX":
-			cell.Sex = value
-		case "AG":
-			cell.Age = value
-		case "CA":
-			cell.Category = value
-		case "DT":
-			cell.Date = value
-		case "//":
-			if _, err := writerCells.WriteString(
-				csvSprintf(
-					false,
-					-1,
-					cell.Identifier,
-					cell.Accession,
-					cell.Secondary,
-					cell.Synonyms,
-					cell.Sex,
-					cell.Age,
-					cell.Category,
-					cell.Date,
-				),
-			); err != nil {
-				log.Fatal(err)
-			}
-			cell = Cell{}
-		default:
-			if _, err := writerAttrs.WriteString(
-				csvSprintf(true, lineNumber, cell.Accession, code, value),
-			); err != nil {
-				log.Fatal(err)
-			}
-			lineNumber = lineNumber + 1
-		}
-	}
-	writerCells.Flush()
-	writerAttrs.Flush()
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+	xrefsTXT := absoluteFilePath("cellosaurus", "cellosaurus_xrefs.txt")
+	xrefsCSV := absoluteFilePath("data", "xrefs.csv")
+	if err := scanXRefsTXT(config.startXRefsTXT, xrefsTXT, xrefsCSV); err != nil {
+		logging.Errorf("scan cellosaurus_xrefs.txt: %v", err)
+		os.Exit(1)
 	}
 }
 
-// Reads and parses cellosaurus_refs.txt.
-// Writes parsed data to csv file(s).
-func scanRawRefData(lineStart int, sourceFile string, destFiles ...string) {
-	if len(destFiles) < 2 {
-		log.Fatal("Error: need at least two destination file paths")
+// formattedCSVLine returns formatted string representing a single csv line.
+func formattedCSVLine(useLineNum bool, lineNum int, words ...string) string {
+	var line string
+	for _, w := range words {
+		line += fmt.Sprintf("\"%s\",", w)
 	}
-
-	txt, err := os.Open(sourceFile)
-	if err != nil {
-		log.Fatal(err)
+	if useLineNum {
+		return strings.TrimSuffix(fmt.Sprintf("%d,%s", lineNum, line), ",") + "\n"
 	}
-	defer txt.Close()
-
-	csvCells, err := os.Create(destFiles[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer csvCells.Close()
-
-	csvAttrs, err := os.Create(destFiles[1])
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer csvAttrs.Close()
-
-	scanner := bufio.NewScanner(txt)
-	writerCells := bufio.NewWriter(csvCells)
-	writerAttrs := bufio.NewWriter(csvAttrs)
-
-	if _, err := writerCells.WriteString("\"\",\"identifier\",\"citation\"\n"); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := writerAttrs.WriteString("\"\",\"identifier\",\"attribute\",\"content\"\n"); err != nil {
-		log.Fatal(err)
-	}
-
-	start := 1
-	lineNumberRef := 1
-	lineNumberAttr := 1
-	identifier := ""
-	citation := ""
-	code := ""
-	value := ""
-	for scanner.Scan() {
-		if start < lineStart {
-			start = start + 1
-			continue
-		}
-
-		line := scanner.Text()
-		dict := strings.Split(line, "   ")
-		code = dict[0]
-		if len(dict) > 1 {
-			value = dict[1]
-		}
-
-		switch code {
-		case "RX":
-			identifier = value
-		case "RL":
-			citation = value
-		case "//":
-			if _, err := writerCells.WriteString(
-				csvSprintf(true, lineNumberRef, identifier, citation),
-			); err != nil {
-				log.Fatal(err)
-			}
-			identifier = ""
-			citation = ""
-			lineNumberRef = lineNumberRef + 1
-		default:
-			if _, err := writerAttrs.WriteString(
-				csvSprintf(true, lineNumberAttr, identifier, code, value),
-			); err != nil {
-				log.Fatal(err)
-			}
-			lineNumberAttr = lineNumberAttr + 1
-		}
-	}
-	writerCells.Flush()
-	writerAttrs.Flush()
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+	return strings.TrimSuffix(line, ",") + "\n"
 }
 
-func scanRawCrossRefData(lineStart int, sourceFile string, destFile string) {
-	txt, err := os.Open(sourceFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer txt.Close()
-
-	csv, err := os.Create(destFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer csv.Close()
-
-	scanner := bufio.NewScanner(txt)
-	writer := bufio.NewWriter(csv)
-
-	if _, err := writer.WriteString(
-		"\"\",\"abbrev\",\"name\",\"server\",\"url\",\"term\",\"cat\"\n",
-	); err != nil {
-		log.Fatal(err)
-	}
-
-	start := 1
-	lineNumber := 1
-	code := ""
-	value := ""
-	xRef := XRef{}
-	for scanner.Scan() {
-		if start < lineStart {
-			start = start + 1
-			continue
-		}
-
-		line := scanner.Text()
-		dict := strings.Split(line, ": ")
-		code = dict[0]
-		if len(dict) > 1 {
-			value = dict[1]
-		}
-
-		switch code {
-		case "Abbrev":
-			xRef.Abbrev = value
-		case "Name  ":
-			if strings.HasPrefix(value, "Istituto Zooprofilattico") { // sanitize special char from raw data
-				value = "Istituto Zooprofilattico Sperimentale della Lombardia e dell Emilia Romagna biobank"
-			}
-			xRef.Name = value
-		case "Server":
-			xRef.Server = value
-		case "Db_URL":
-			xRef.URL = value
-		case "Term. ":
-			xRef.Term = value
-		case "Cat   ":
-			xRef.Cat = value
-		case "//":
-			if _, err := writer.WriteString(
-				csvSprintf(
-					true,
-					lineNumber,
-					xRef.Abbrev,
-					xRef.Name,
-					xRef.Server,
-					xRef.URL,
-					xRef.Term,
-					xRef.Cat,
-				),
-			); err != nil {
-				log.Fatal(err)
-			}
-			lineNumber = lineNumber + 1
-			xRef = XRef{}
-		}
-	}
-	writer.Flush()
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-}
-
-// Manually writes stats data from cellosaurus_relnotes.txt.
-func scanRelNoteStats(destFile string) {
-	csv, err := os.Create(destFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer csv.Close()
-	writer := bufio.NewWriter(csv)
-	if _, err := writer.WriteString(
-		"\"\",\"attribute\",\"count\"\n" +
-			"1,\"cellLinesTotal\",\"136313\"\n" +
-			"2,\"cellLinesHuman\",\"102081\"\n" +
-			"3,\"cellLinesMouse\",\"23519\"\n" +
-			"4,\"cellLinesRat\",\"2537\"\n" +
-			"5,\"species\",\"759\"\n" +
-			"6,\"synonyms\",\"98213\"\n" +
-			"7,\"crossReferences\",\"400865\"\n" +
-			"8,\"references\",\"140507\"\n" +
-			"9,\"distinctPublications\",\"23950\"\n" +
-			"10,\"webLinks\",\"13347\"\n" +
-			"11,\"cellLinesWithStrProfiles\",\"8134\"\n" +
-			"12,\"version\",\"41\"\n",
-	); err != nil {
-		log.Fatal(err)
-	}
-	writer.Flush()
-}
-
-// Returns formatted string for csv file lines.
-func csvSprintf(addLineNumber bool, lineNumber int, words ...string) string {
-	prefix := ""
-	if addLineNumber {
-		prefix = fmt.Sprintf("%d,", lineNumber)
-	}
-	final := ""
-	for _, word := range words {
-		final = final + fmt.Sprintf("\"%s\",", word)
-	}
-	return prefix + strings.TrimSuffix(final, ",") + "\n"
-}
-
-// Returns the absolute path to read/write file.
-func getFilePath(dir string, file string) string {
+// absoluteFilePath returns the absolute path of a file.
+func absoluteFilePath(dir string, file string) string {
 	root, err := filepath.Abs(".")
 	if err != nil {
-		log.Fatal(err)
+		logging.Errorf("absoluteFilePath: %v", err)
+		os.Exit(1)
 	}
 	return fmt.Sprintf("%s/%s/%s", root, dir, file)
+}
+
+// fromEnvOrDefaultVal returns an environment variable value if it exists,
+// or the specified default value.
+func fromEnvOrDefaultVal(env, defaultVal string) string {
+	if val := os.Getenv(env); val != "" {
+		return val
+	}
+	return defaultVal
 }

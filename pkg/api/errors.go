@@ -3,39 +3,22 @@ package api
 import (
 	"net/http"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 )
 
 type Error struct {
-	Status  int    `json:"status"`
+	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
 func BadRequest(c *gin.Context) {
-	errRenderer(c, http.StatusBadRequest, "Bad Request", false)
+	errRenderer(c, http.StatusBadRequest, "Bad Request")
 }
 
-func NotFound(c *gin.Context) {
-	errRenderer(c, http.StatusNotFound, "Resource Not Found", false)
-}
-
-func InternalServerError(c *gin.Context) {
-	errRenderer(c, http.StatusInternalServerError, "Internal Server Error", false)
-}
-
-func errRenderer(c *gin.Context, status int, message string, indent bool) {
+func errRenderer(c *gin.Context, code int, message string) {
 	err := Error{
-		Status:  status,
+		Code:    code,
 		Message: message,
 	}
-	if indent {
-		c.IndentedJSON(status, gin.H{"error": err})
-	} else {
-		c.JSON(status, gin.H{"error": err})
-	}
-}
-
-func logSentry(err error) {
-	sentry.CaptureException(err)
+	c.JSON(code, gin.H{"error": err})
 }

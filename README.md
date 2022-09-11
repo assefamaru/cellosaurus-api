@@ -1,6 +1,6 @@
 # cellosaurus-api
 
-The [Cellosaurus](https://web.expasy.org/cellosaurus/) is a knowledge resource on cell lines. It attempts to describe all cell lines used in biomedical research. This API aims to make the data provided by Cellosaurus as integrable as possible, by providing programmatic access to the full database.
+The [Cellosaurus](https://github.com/calipho-sib/cellosaurus) is a knowledge resource on cell lines. It attempts to describe all cell lines used in biomedical research. This API aims to make the data provided by Cellosaurus as integrable as possible, by providing programmatic access to the full database.
 
 NOTE: The live version of the API is hosted on a free tier plan on heroku, and [sleeps after 30 minutes of inactivity](https://devcenter.heroku.com/articles/free-dyno-hours#dyno-sleeping). As a result, you might experience a lag on your first request.
 
@@ -8,8 +8,8 @@ NOTE: The live version of the API is hosted on a free tier plan on heroku, and [
 
 All calls are made to the following base URL, adding required endpoints for specific services.
 
-```
-https://api.cellosaur.us/v41
+```bash
+https://api.cellosaur.us/api/v42/
 ```
 
 All responses are in `json` format.
@@ -18,6 +18,7 @@ The following previous versions are also available for the live API:
 
 | Version | Base URL                                                       |
 | :-----: | :------------------------------------------------------------- |
+|  `41`   | [`https://api.cellosaur.us/v41`](https://api.cellosaur.us/v41) |
 |  `40`   | [`https://api.cellosaur.us/v40`](https://api.cellosaur.us/v40) |
 
 See [Tags](https://github.com/assefamaru/cellosaurus-api/tags) to build any previous versions locally.
@@ -26,27 +27,27 @@ See [Tags](https://github.com/assefamaru/cellosaurus-api/tags) to build any prev
 
 The following endpoints are currently supported:
 
-| Method | Endpoint             | Parameter(s)                | Example                                                         |
-| :----: | :------------------- | :-------------------------- | :-------------------------------------------------------------- |
-|  GET   | **/cells**           | `page`, `perPage`, `indent` | https://api.cellosaur.us/v41/cells?page=8&perPage=10            |
-|  GET   | **/cell-lines**      | `page`, `perPage`, `indent` | https://api.cellosaur.us/v41/cell-lines?page=3&perPage=20       |
-|  GET   | **/cell_lines**      | `page`, `perPage`, `indent` | https://api.cellosaur.us/v41/cell_lines?page=5&perPage=30       |
-|  GET   | **/cells/{id}**      | `indent`                    | https://api.cellosaur.us/v41/cells/mcf-7?indent=true            |
-|  GET   | **/cell-lines/{id}** | `indent`                    | https://api.cellosaur.us/v41/cell-lines/mcf-7?indent=true       |
-|  GET   | **/cell_lines/{id}** | `indent`                    | https://api.cellosaur.us/v41/cell_lines/mcf-7?indent=true       |
-|  GET   | **/refs**            | `page`, `perPage`, `indent` | https://api.cellosaur.us/v41/refs?page=1&perPage=10&indent=true |
-|  GET   | **/xrefs**           | `indent`                    | https://api.cellosaur.us/v41/xrefs?indent=true                  |
-|  GET   | **/stats**           | `indent`                    | https://api.cellosaur.us/v41/stats                              |
+| Method | Endpoint              | Parameter(s)      | Example                                                         |
+| :----: | :-------------------- | :---------------- | :-------------------------------------------------------------- |
+|  GET   | **/cells**            | `page`, `perPage` | <https://api.cellosaur.us/api/v42/cells?page=8&perPage=10>      |
+|  GET   | **/cell-lines**       | `page`, `perPage` | <https://api.cellosaur.us/api/v42/cell-lines?page=3&perPage=20> |
+|  GET   | **/cells/{id}**       |                   | <https://api.cellosaur.us/api/v42/cells/mcf-7>                  |
+|  GET   | **/cell-lines/{id}**  |                   | <https://api.cellosaur.us/api/v42/cell-lines/mcf-7>             |
+|  GET   | **/refs**             | `page`, `perPage` | <https://api.cellosaur.us/api/v42/refs?page=1&perPage=10>       |
+|  GET   | **/references**       | `page`, `perPage` | <https://api.cellosaur.us/api/v42/references?page=1&perPage=10> |
+|  GET   | **/xrefs**            |                   | <https://api.cellosaur.us/api/v42/xrefs>                        |
+|  GET   | **/cross-references** |                   | <https://api.cellosaur.us/api/v42/cross-references>             |
+|  GET   | **/stats**            |                   | <https://api.cellosaur.us/api/v42/stats>                        |
+|  GET   | **/statistics**       |                   | <https://api.cellosaur.us/api/v42/statistics>                   |
 
-Endpoints should always be prefixed with the current version number when making a request (ie. the `v41` in `https://api.cellosaur.us/v41/<endpoint>`).
+Endpoints should always be prefixed with `/api/` and the current version number when making a request (e.g. `https://api.cellosaur.us/api/v42/<endpoint>`).
 
-Parameters are not required in request URLs. When parameters are not included in request, they are set to their default values:
+Parameters are not required in request URLs. When parameters are not included, they are set to their default values:
 
 | Parameter | Default Value |
 | :-------- | :-----------: |
 | `page`    |      `1`      |
 | `perPage` |     `10`      |
-| `indent`  |    `true`     |
 
 Endpoints that contain `page` and `perPage` parameters will have a `meta` field in their response containing pagination information, as well as the total number of records under the requested resource type. Such a response will look as follows:
 
@@ -62,24 +63,14 @@ Endpoints that contain `page` and `perPage` parameters will have a `meta` field 
 }
 ```
 
+The maximum number of records that can be returned in a single request (by modifying `perPage`) is `1000`.
+
 ## Getting Started Locally
 
-You can follow the steps below to setup the API locally.
+To setup locally, first install Go and MySQL locally. Then, follow the steps below:
 
-1. Clone this repository:
-
-```bash
-git clone https://github.com/assefamaru/cellosaurus-api
-```
-
-2. Run provision script:
-
-```bash
-./scripts/provision.sh
-```
-
-This will initialize submodules, parse raw cellosaurus text files to generate csv formats, and setup local mysql seeded with csv data.
-
+1. Clone this repository: `git clone https://github.com/assefamaru/cellosaurus-api`
+2. Run provision script: `./scripts/provision.sh`
 3. Export environment variables:
 
 ```bash
@@ -91,13 +82,8 @@ export MYSQL_SERVICE_PORT=xyz  # eg. 3306
 export PORT=xyz                # eg. 8080
 ```
 
-4. Run the API locally:
-
-```bash
-./scripts/run.sh
-```
-
-Alternatively, you can run the API via one of the generated builds inside `bin` directory.
+4. Run the API locally from one of the built binaries inside `bin`: `./bin/cellosaurus-api-<os>-<platform>`
+5. Access the locally running API at `localhost:8080/api/v42/`.
 
 ## Contributing
 
