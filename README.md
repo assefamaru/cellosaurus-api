@@ -40,7 +40,7 @@ The following endpoints are currently supported:
 |  GET   | **/stats**            |                   | <https://api.cellosaur.us/v41/stats>                        |
 |  GET   | **/statistics**       |                   | <https://api.cellosaur.us/v41/statistics>                   |
 
-Endpoints should always be prefixed with the current version number when making a request (e.g. `https://api.cellosaur.us/v41/<endpoint>`).
+Endpoints should always be prefixed with the current version number when making requests.
 
 Parameters are not required in request URLs. When parameters are not included, they are set to their default values:
 
@@ -69,8 +69,18 @@ The maximum number of records that can be returned in a single request (by modif
 
 To setup locally, first install Go and MySQL locally. Then, follow the steps below:
 
-1. Clone this repository: `git clone https://github.com/assefamaru/cellosaurus-api`
-2. Run provision script: `./scripts/provision.sh`
+1. Clone this repository:
+
+```bash
+git clone https://github.com/assefamaru/cellosaurus-api
+```
+
+2. Run provision script:
+
+```bash
+./scripts/provision.sh
+```
+
 3. Export environment variables:
 
 ```bash
@@ -82,8 +92,17 @@ export MYSQL_SERVICE_PORT=xyz  # eg. 3306
 export PORT=xyz                # eg. 8080
 ```
 
-4. Run the API locally from one of the built binaries inside `bin`: `./bin/cellosaurus-api-<os>-<platform>`
-5. Access the locally running API at `localhost:8080/api/v42/`.
+4. Run the locally built API inside bin directory:
+
+```bash
+./bin/cellosaurus-api-<os>-<platform>
+```
+
+5. Access the locally running API:
+
+```bash
+curl localhost:8080/api/v42/
+```
 
 ## Troubleshooting
 
