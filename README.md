@@ -27,20 +27,20 @@ See [Tags](https://github.com/assefamaru/cellosaurus-api/tags) to build any prev
 
 The following endpoints are currently supported:
 
-| Method | Endpoint              | Parameter(s)      | Example                                                         |
-| :----: | :-------------------- | :---------------- | :-------------------------------------------------------------- |
-|  GET   | **/cells**            | `page`, `perPage` | <https://api.cellosaur.us/api/v42/cells?page=8&perPage=10>      |
-|  GET   | **/cell-lines**       | `page`, `perPage` | <https://api.cellosaur.us/api/v42/cell-lines?page=3&perPage=20> |
-|  GET   | **/cells/{id}**       |                   | <https://api.cellosaur.us/api/v42/cells/mcf-7>                  |
-|  GET   | **/cell-lines/{id}**  |                   | <https://api.cellosaur.us/api/v42/cell-lines/mcf-7>             |
-|  GET   | **/refs**             | `page`, `perPage` | <https://api.cellosaur.us/api/v42/refs?page=1&perPage=10>       |
-|  GET   | **/references**       | `page`, `perPage` | <https://api.cellosaur.us/api/v42/references?page=1&perPage=10> |
-|  GET   | **/xrefs**            |                   | <https://api.cellosaur.us/api/v42/xrefs>                        |
-|  GET   | **/cross-references** |                   | <https://api.cellosaur.us/api/v42/cross-references>             |
-|  GET   | **/stats**            |                   | <https://api.cellosaur.us/api/v42/stats>                        |
-|  GET   | **/statistics**       |                   | <https://api.cellosaur.us/api/v42/statistics>                   |
+| Method | Endpoint              | Parameter(s)      | Example                                                     |
+| :----: | :-------------------- | :---------------- | :---------------------------------------------------------- |
+|  GET   | **/cells**            | `page`, `perPage` | <https://api.cellosaur.us/v41/cells?page=8&perPage=10>      |
+|  GET   | **/cell-lines**       | `page`, `perPage` | <https://api.cellosaur.us/v41/cell-lines?page=3&perPage=20> |
+|  GET   | **/cells/{id}**       |                   | <https://api.cellosaur.us/v41/cells/mcf-7>                  |
+|  GET   | **/cell-lines/{id}**  |                   | <https://api.cellosaur.us/v41/cell-lines/mcf-7>             |
+|  GET   | **/refs**             | `page`, `perPage` | <https://api.cellosaur.us/v41/refs?page=1&perPage=10>       |
+|  GET   | **/references**       | `page`, `perPage` | <https://api.cellosaur.us/v41/references?page=1&perPage=10> |
+|  GET   | **/xrefs**            |                   | <https://api.cellosaur.us/v41/xrefs>                        |
+|  GET   | **/cross-references** |                   | <https://api.cellosaur.us/v41/cross-references>             |
+|  GET   | **/stats**            |                   | <https://api.cellosaur.us/v41/stats>                        |
+|  GET   | **/statistics**       |                   | <https://api.cellosaur.us/v41/statistics>                   |
 
-Endpoints should always be prefixed with `/api/` and the current version number when making a request (e.g. `https://api.cellosaur.us/api/v42/<endpoint>`).
+Endpoints should always be prefixed with the current version number when making a request (e.g. `https://api.cellosaur.us/v41/<endpoint>`).
 
 Parameters are not required in request URLs. When parameters are not included, they are set to their default values:
 
@@ -84,6 +84,21 @@ export PORT=xyz                # eg. 8080
 
 4. Run the API locally from one of the built binaries inside `bin`: `./bin/cellosaurus-api-<os>-<platform>`
 5. Access the locally running API at `localhost:8080/api/v42/`.
+
+## Troubleshooting
+
+When loading data to local mysql instance, you may encounter an error such as:
+
+```bash
+Loading local data is disabled; this must be enabled on both the client and server side
+```
+
+You can fix this by enabling local infile:
+
+```bash
+mysql> SET GLOBAL local_infile=1;
+Query OK, 0 rows affected (0.00 sec)
+```
 
 ## Contributing
 
