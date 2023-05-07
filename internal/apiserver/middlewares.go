@@ -1,4 +1,4 @@
-package api
+package apiserver
 
 import (
 	"strings"
@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Logger is a custom middleware for logging requests.
+// Logger is a custom middleware for logging server traffic.
 func Logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := time.Now()
@@ -20,9 +20,9 @@ func Logger() gin.HandlerFunc {
 		logFormat := "%6s %s (%v) - %s"
 
 		if c.Writer.Status() < 400 {
-			logging.Infof(logFormat, c.Request.Method, path, latency, c.ClientIP())
+			logging.NewLocalLogger().Infof(logFormat, c.Request.Method, path, latency, c.ClientIP())
 		} else {
-			logging.Errorf(logFormat, c.Request.Method, path, latency, c.ClientIP())
+			logging.NewLocalLogger().Errorf(logFormat, c.Request.Method, path, latency, c.ClientIP())
 		}
 	}
 }

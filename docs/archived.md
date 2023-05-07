@@ -1,13 +1,21 @@
-The [Cellosaurus](https://github.com/calipho-sib/cellosaurus) is a knowledge resource on cell lines. It attempts to describe all cell lines used in biomedical research. This API aims to make the data provided by Cellosaurus as integrable as possible, by providing programmatic access to the full database.
+# Archived
 
-NOTE: The live version of the API is hosted on a free tier plan on heroku, and [sleeps after 30 minutes of inactivity](https://devcenter.heroku.com/articles/free-dyno-hours#dyno-sleeping). As a result, you might experience a lag on your first request.
+The [Cellosaurus](https://github.com/calipho-sib/cellosaurus) is a knowledge
+resource on cell lines. It attempts to describe all cell lines used in
+biomedical research. This API aims to make the data provided by Cellosaurus as
+integrable as possible, by providing programmatic access to the full database.
+
+NOTE: The live version of the API is hosted on a free tier plan on heroku, and
+[sleeps after 30 minutes of inactivity](https://devcenter.heroku.com/articles/free-dyno-hours#dyno-sleeping).
+As a result, you might experience a lag on your first request.
 
 ## Accessing the API
 
-All calls are made to the following base URL, adding required endpoints for specific services.
+All calls are made to the following base URL, adding required endpoints for
+specific services.
 
 ```bash
-https://api.cellosaur.us/api/v42/
+https://api.cellosaur.us/v42/
 ```
 
 All responses are in `json` format.
@@ -19,7 +27,8 @@ The following previous versions are also available for the live API:
 |  `41`   | [`https://api.cellosaur.us/v41`](https://api.cellosaur.us/v41) |
 |  `40`   | [`https://api.cellosaur.us/v40`](https://api.cellosaur.us/v40) |
 
-See [Tags](https://github.com/assefamaru/cellosaurus-api/tags) to build any previous versions locally.
+See [Tags](https://github.com/assefamaru/cellosaurus-api/tags) to build any
+previous versions locally.
 
 ## Endpoints
 
@@ -38,16 +47,21 @@ The following endpoints are currently supported:
 |  GET   | **/stats**            |                   | <https://api.cellosaur.us/v41/stats>                        |
 |  GET   | **/statistics**       |                   | <https://api.cellosaur.us/v41/statistics>                   |
 
-Endpoints should always be prefixed with the current version number when making requests.
+Endpoints should always be prefixed with the current version number when making
+requests.
 
-Parameters are not required in request URLs. When parameters are not included, they are set to their default values:
+Parameters are not required in request URLs. When parameters are not included,
+they are set to their default values:
 
 | Parameter | Default Value |
 | :-------- | :-----------: |
 | `page`    |      `1`      |
 | `perPage` |     `10`      |
 
-Endpoints that contain `page` and `perPage` parameters will have a `meta` field in their response containing pagination information, as well as the total number of records under the requested resource type. Such a response will look as follows:
+Endpoints that contain `page` and `perPage` parameters will have a `meta` field
+in their response containing pagination information, as well as the total number
+of records under the requested resource type. Such a response will look as
+follows:
 
 ```json
 {
@@ -61,11 +75,13 @@ Endpoints that contain `page` and `perPage` parameters will have a `meta` field 
 }
 ```
 
-The maximum number of records that can be returned in a single request (by modifying `perPage`) is `1000`.
+The maximum number of records that can be returned in a single request (by
+modifying `perPage`) is `1000`.
 
 ## Getting Started Locally
 
-To setup locally, first install Go and MySQL locally. Then, follow the steps below:
+To setup locally, first install Go and MySQL locally. Then, follow the steps
+below:
 
 1. Clone this repository:
 
@@ -122,7 +138,9 @@ Query OK, 0 rows affected (0.00 sec)
 You can contribute in various ways:
 
 - Send PRs (pull requests) with new feature implementations, fixed bugs etc.
-- Offer suggestions, request new features, or report any errors by creating [new](https://github.com/assefamaru/cellosaurus-api/issues/new) issues and assigning them appropriate labels.
+- Offer suggestions, request new features, or report any errors by creating
+  [new](https://github.com/assefamaru/cellosaurus-api/issues/new) issues and
+  assigning them appropriate labels.
 
 ## License
 

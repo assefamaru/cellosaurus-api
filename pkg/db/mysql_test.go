@@ -1,57 +1,88 @@
 package db
 
 import (
-	"os"
+	"errors"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestNewMySQL(t *testing.T) {
-	cases := []struct {
-		config MySQL
-		dsn    string
+func TestNewMySQLConfigFromEnv(t *testing.T) {
+	testCases := []struct {
+		name    string
+		user    string
+		pass    string
+		db      string
+		host    string
+		port    string
+		wantErr error
 	}{
 		{
-			config: MySQL{user: "brucewayne", pass: "batman", db: "justiceleague", host: "gotham", port: "comic"},
-			dsn:    "brucewayne:batman@tcp(gotham:comic)/justiceleague",
+			"Valid input",
+			"brucewayne",
+			"batman",
+			"justiceleague",
+			"gotham",
+			"comic",
+			nil,
 		},
 		{
-			config: MySQL{user: "clarkkent", pass: "superman", db: "justiceleague", host: "metropolis", port: "comic"},
-			dsn:    "clarkkent:superman@tcp(metropolis:comic)/justiceleague",
-		},
-	}
-
-	for _, c := range cases {
-		mysql := NewMySQL(c.config.user, c.config.pass, c.config.db, c.config.host, c.config.port)
-		assert.Equal(t, c.dsn, mysql.DSN())
-	}
-}
-
-func TestNewMySQLFromEnv(t *testing.T) {
-	cases := []struct {
-		config MySQL
-		dsn    string
-	}{
-		{
-			config: MySQL{user: "brucewayne", pass: "batman", db: "justiceleague", host: "gotham", port: "comic"},
-			dsn:    "brucewayne:batman@tcp(gotham:comic)/justiceleague",
+			"Missing user",
+			"",
+			"batman",
+			"justiceleague",
+			"gotham",
+			"comic",
+			errMissingEnv,
 		},
 		{
-			config: MySQL{user: "clarkkent", pass: "superman", db: "justiceleague", host: "metropolis", port: "comic"},
-			dsn:    "clarkkent:superman@tcp(metropolis:comic)/justiceleague",
+			"Missing pass",
+			"brucewayne",
+			"",
+			"justiceleague",
+			"gotham",
+			"comic",
+			errMissingEnv,
+		},
+		{
+			"Missing db",
+			"brucewayne",
+			"batman",
+			"",
+			"gotham",
+			"comic",
+			errMissingEnv,
+		},
+		{
+			"Missing host",
+			"brucewayne",
+			"batman",
+			"justiceleague",
+			"",
+			"comic",
+			errMissingEnv,
+		},
+		{
+			"Missing port",
+			"brucewayne",
+			"batman",
+			"justiceleague",
+			"gotham",
+			"",
+			errMissingEnv,
 		},
 	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv(mysqlServiceUserEnv, tc.user)
+			t.Setenv(mysqlServicePassEnv, tc.pass)
+			t.Setenv(mysqlServiceDBEnv, tc.db)
+			t.Setenv(mysqlServiceHostEnv, tc.host)
+			t.Setenv(mysqlServicePortEnv, tc.port)
 
-	for _, c := range cases {
-		assert.Nil(t, os.Setenv(mysqlServiceUserEnv, c.config.user))
-		assert.Nil(t, os.Setenv(mysqlServicePassEnv, c.config.pass))
-		assert.Nil(t, os.Setenv(mysqlServiceDBEnv, c.config.db))
-		assert.Nil(t, os.Setenv(mysqlServiceHostEnv, c.config.host))
-		assert.Nil(t, os.Setenv(mysqlServicePortEnv, c.config.port))
+			_, err := newMySQLConfigFromEnv()
 
-		mysql, err := NewMySQLFromEnv()
-		assert.Nil(t, err)
-		assert.Equal(t, c.dsn, mysql.DSN())
+			if got, want := err, tc.wantErr; !errors.Is(got, want) {
+				t.Errorf("newMySQLConfigFromEnv(%s): got = '%v', want = '%v'", tc.name, got, want)
+			}
+		})
 	}
 }

@@ -1,4 +1,4 @@
-package api
+package apiserver
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/assefamaru/cellosaurus-api/pkg/api/core"
+	"github.com/assefamaru/cellosaurus-api/internal/data"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,33 +16,33 @@ const (
 )
 
 // Metadata for paginated results.
-type Meta struct {
+type meta struct {
 	Page     int `json:"page"`
 	PerPage  int `json:"perPage"`
 	LastPage int `json:"lastPage"`
 	Total    int `json:"total"`
 }
 
-// GET /cells.
-func ListCells(c *gin.Context) {
-	meta, err := newMeta(c, "cells")
+// GET /vX/cells.
+func (s *Server) ListCells(c *gin.Context) {
+	pageStr := c.DefaultQuery("page", "1")
+	perPageStr := c.DefaultQuery("perPage", "10")
+	meta, err := s.newMeta(pageStr, perPageStr, data.ResourceTypeCell)
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	cells, err := core.ListCells(paginationFrom(meta), meta.PerPage)
+	cells, err := s.store.ListCells(paginationFrom(meta), meta.PerPage)
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"meta": meta, "data": cells})
 }
 
-// GET /cells/:id.
-func FetchCell(c *gin.Context) {
-	cell, err := core.FetchCell(strings.TrimPrefix(c.Param("id"), "/"))
+// GET /vX/cells/:id.
+func (s *Server) GetCell(c *gin.Context) {
+	cell, err := s.store.FetchCell(strings.TrimPrefix(c.Param("id"), "/"))
 	if err == sql.ErrNoRows {
 		errRenderer(c, http.StatusNotFound, err.Error())
 		return
@@ -51,90 +51,80 @@ func FetchCell(c *gin.Context) {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	c.JSON(http.StatusOK, cell)
 }
 
-// GET /refs.
-func ListReferences(c *gin.Context) {
-	meta, err := newMeta(c, "refs")
+// GET /vX/refs.
+func (s *Server) ListReferences(c *gin.Context) {
+	pageStr := c.DefaultQuery("page", "1")
+	perPageStr := c.DefaultQuery("perPage", "10")
+	meta, err := s.newMeta(pageStr, perPageStr, data.ResourceTypeRef)
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	refs, err := core.ListReferences(paginationFrom(meta), meta.PerPage)
+	refs, err := s.store.ListReferences(paginationFrom(meta), meta.PerPage)
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"meta": meta, "data": refs})
 }
 
-// GET /xrefs.
-func ListCrossReferences(c *gin.Context) {
-	xrefs, err := core.ListCrossReferences()
+// GET /vX/xrefs.
+func (s *Server) ListCrossReferences(c *gin.Context) {
+	xrefs, err := s.store.ListCrossReferences()
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	c.JSON(http.StatusOK, xrefs)
 }
 
-// GET /stats.
-func ListStatistics(c *gin.Context) {
+// GET /vX/stats.
+func (s *Server) ListStatistics(c *gin.Context) {
 	var version string
 	pathParts := strings.Split(c.Request.URL.Path, "/")
 	if len(pathParts) > 2 {
-		version = strings.TrimPrefix(pathParts[2], "v")
+		version = strings.TrimPrefix(pathParts[1], "v")
 	}
-
-	stats, err := core.ListStatistics(version)
+	stats, err := s.store.ListStatistics(version)
 	if err != nil {
 		errRenderer(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	c.JSON(http.StatusOK, stats)
 }
 
-// newMeta returns metadata field with pagination information for list operations.
-func newMeta(c *gin.Context, resourceType string) (*Meta, error) {
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+func (s *Server) newMeta(pageStr, perPageStr, resourceType string) (*meta, error) {
+	page, err := strconv.Atoi(pageStr)
 	if err != nil {
 		return nil, err
 	}
-	perPage, err := strconv.Atoi(c.DefaultQuery("perPage", "10"))
+	perPage, err := strconv.Atoi(perPageStr)
 	if err != nil {
 		return nil, err
 	}
-
-	// Set hard upper limit on number of records in response.
+	// Set a ceiling on the allowed
+	// number of records in response.
 	if perPage > maxResponseBatchSize {
 		perPage = maxResponseBatchSize
 	}
-
 	var count int
 	switch resourceType {
-	case "references":
-		count, err = core.CountReferences()
-		if err != nil {
-			return nil, err
-		}
-	default:
-		count, err = core.CountCells()
-		if err != nil {
-			return nil, err
-		}
+	case data.ResourceTypeRef:
+		count, err = s.store.CountReferences()
+	case data.ResourceTypeCell:
+		count, err = s.store.CountCells()
+	}
+	if err != nil {
+		return nil, err
 	}
 	lastPage := int(math.Ceil(float64(count) / float64(perPage)))
-	meta := &Meta{page, perPage, lastPage, count}
-
+	meta := &meta{page, perPage, lastPage, count}
 	return meta, nil
 }
 
-func paginationFrom(meta *Meta) int {
+func paginationFrom(meta *meta) int {
 	return (meta.Page - 1) * meta.PerPage
 }

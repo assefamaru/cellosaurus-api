@@ -1,54 +1,46 @@
 package db
 
 import (
-	"os"
+	"errors"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestNewMongo(t *testing.T) {
-	cases := []struct {
-		config Mongo
-		dsn    string
+func TestNewMongoConfigFromEnv(t *testing.T) {
+	testCases := []struct {
+		name    string
+		host    string
+		port    string
+		wantErr error
 	}{
 		{
-			config: Mongo{host: "gotham", port: "comic"},
-			dsn:    "mongodb://gotham:comic",
+			"Valid input",
+			"gotham",
+			"comic",
+			nil,
 		},
 		{
-			config: Mongo{host: "metropolis", port: "comic"},
-			dsn:    "mongodb://metropolis:comic",
-		},
-	}
-
-	for _, c := range cases {
-		mongo := NewMongo(c.config.host, c.config.port)
-		assert.Equal(t, c.dsn, mongo.DSN())
-	}
-}
-
-func TestNewMongoFromEnv(t *testing.T) {
-	cases := []struct {
-		config Mongo
-		dsn    string
-	}{
-		{
-			config: Mongo{host: "gotham", port: "comic"},
-			dsn:    "mongodb://gotham:comic",
+			"Missing host",
+			"",
+			"comic",
+			errMissingEnv,
 		},
 		{
-			config: Mongo{host: "metropolis", port: "comic"},
-			dsn:    "mongodb://metropolis:comic",
+			"Missing port",
+			"gotham",
+			"",
+			errMissingEnv,
 		},
 	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv(mongoServiceHostEnv, tc.host)
+			t.Setenv(mongoServicePortEnv, tc.port)
 
-	for _, c := range cases {
-		assert.Nil(t, os.Setenv(mongoServiceHostEnv, c.config.host))
-		assert.Nil(t, os.Setenv(mongoServicePortEnv, c.config.port))
+			_, err := newMongoConfigFromEnv()
 
-		mongo, err := NewMongoFromEnv()
-		assert.Nil(t, err)
-		assert.Equal(t, c.dsn, mongo.DSN())
+			if got, want := err, tc.wantErr; !errors.Is(got, want) {
+				t.Errorf("newMongoConfigFromEnv(%s): got = '%v', want = '%v'", tc.name, got, want)
+			}
+		})
 	}
 }
