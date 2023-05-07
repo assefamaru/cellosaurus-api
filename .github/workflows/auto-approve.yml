@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+    if: github.actor == 'assefamaru'
     steps:
-      - uses: hmarr/auto-approve-action@v2
-        if: github.actor == 'assefamaru'
+      - uses: hmarr/auto-approve-action@v3
         with:
-          review-message: "Auto approved maintainer PR"
+          review-message: ":rocket:"
