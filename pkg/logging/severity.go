@@ -3,7 +3,7 @@ package logging
 type Severity string
 
 const (
-	DEFAULT  Severity = "DEFAULT"
+	DEBUG    Severity = "DEBUG"
 	INFO     Severity = "INFO"
 	WARNING  Severity = "WARNING"
 	ERROR    Severity = "ERROR"

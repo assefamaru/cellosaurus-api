@@ -30,7 +30,7 @@ func main() {
 	flag.Parse()
 
 	if settings[*version] == nil {
-		logging.Errorf("unknown version: %v", *version)
+		logging.NewLocalLogger().Errorf("unknown version: %v", *version)
 		os.Exit(1)
 	}
 
@@ -41,7 +41,7 @@ func main() {
 	cellsCSV := absoluteFilePath("data", "cells.csv")
 	cellAttrsCSV := absoluteFilePath("data", "cell_attributes.csv")
 	if err := scanCellsTXT(config.startCellsTXT, cellsTXT, cellsCSV, cellAttrsCSV); err != nil {
-		logging.Errorf("scan cellosaurus.txt: %v", err)
+		logging.NewLocalLogger().Errorf("scan cellosaurus.txt: %v", err)
 		os.Exit(1)
 	}
 
@@ -50,7 +50,7 @@ func main() {
 	refsCSV := absoluteFilePath("data", "refs.csv")
 	refAttrsCSV := absoluteFilePath("data", "ref_attributes.csv")
 	if err := scanRefsTXT(config.startRefsTXT, refsTXT, refsCSV, refAttrsCSV); err != nil {
-		logging.Errorf("scan cellosaurus_refs.txt: %v", err)
+		logging.NewLocalLogger().Errorf("scan cellosaurus_refs.txt: %v", err)
 		os.Exit(1)
 	}
 
@@ -58,7 +58,7 @@ func main() {
 	xrefsTXT := absoluteFilePath("cellosaurus", "cellosaurus_xrefs.txt")
 	xrefsCSV := absoluteFilePath("data", "xrefs.csv")
 	if err := scanXRefsTXT(config.startXRefsTXT, xrefsTXT, xrefsCSV); err != nil {
-		logging.Errorf("scan cellosaurus_xrefs.txt: %v", err)
+		logging.NewLocalLogger().Errorf("scan cellosaurus_xrefs.txt: %v", err)
 		os.Exit(1)
 	}
 }
@@ -79,7 +79,7 @@ func formattedCSVLine(useLineNum bool, lineNum int, words ...string) string {
 func absoluteFilePath(dir string, file string) string {
 	root, err := filepath.Abs(".")
 	if err != nil {
-		logging.Errorf("absoluteFilePath: %v", err)
+		logging.NewLocalLogger().Errorf("absoluteFilePath: %v", err)
 		os.Exit(1)
 	}
 	return fmt.Sprintf("%s/%s/%s", root, dir, file)

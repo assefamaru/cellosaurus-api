@@ -1,11 +1,12 @@
 package db
 
 import (
+	// go mysql driver
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
 
-	// go mysql driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -17,7 +18,15 @@ const (
 	mysqlServicePortEnv = "MYSQL_SERVICE_PORT"
 )
 
-type MySQL struct {
+// MySQLClient is a client interface for
+// managing a pool of zero or more
+// underlying mysql connections.
+type MySQLClient struct {
+	conn   *sql.DB
+	config *mySQLConfig
+}
+
+type mySQLConfig struct {
 	user string
 	pass string
 	db   string
@@ -25,54 +34,71 @@ type MySQL struct {
 	port string
 }
 
-// NewMySQL returns a new MySQL instance using arguments.
-func NewMySQL(user, pass, dbName, host, port string) *MySQL {
-	return &MySQL{
-		user: user,
-		pass: pass,
-		db:   dbName,
-		host: host,
-		port: port,
-	}
-}
-
-// NewMySQLFromEnv returns a new MySQL instance using
-// environment variables.
-func NewMySQLFromEnv() (*MySQL, error) {
-	mysqlConfig := &MySQL{}
-	errPrefixFormatStr := "missing environment variable: %v"
-	if mysqlConfig.user = os.Getenv(mysqlServiceUserEnv); mysqlConfig.user == "" {
-		return nil, fmt.Errorf(errPrefixFormatStr, mysqlServiceUserEnv)
-	}
-	if mysqlConfig.pass = os.Getenv(mysqlServicePassEnv); mysqlConfig.pass == "" {
-		return nil, fmt.Errorf(errPrefixFormatStr, mysqlServicePassEnv)
-	}
-	if mysqlConfig.db = os.Getenv(mysqlServiceDBEnv); mysqlConfig.db == "" {
-		return nil, fmt.Errorf(errPrefixFormatStr, mysqlServiceDBEnv)
-	}
-	if mysqlConfig.host = os.Getenv(mysqlServiceHostEnv); mysqlConfig.host == "" {
-		return nil, fmt.Errorf(errPrefixFormatStr, mysqlServiceHostEnv)
-	}
-	if mysqlConfig.port = os.Getenv(mysqlServicePortEnv); mysqlConfig.port == "" {
-		return nil, fmt.Errorf(errPrefixFormatStr, mysqlServicePortEnv)
-	}
-	return mysqlConfig, nil
-}
-
-// Connect returns a new mysql connection.
-func (m *MySQL) Connect() (*sql.DB, error) {
-	db, err := sql.Open("mysql", m.DSN())
+// MySQLClient creates a new MySQL.
+func NewMySQLClient(ctx context.Context) (*MySQLClient, error) {
+	config, err := newMySQLConfigFromEnv()
 	if err != nil {
 		return nil, err
 	}
-	if err := db.Ping(); err != nil {
-		db.Close()
+	conn, err := sql.Open("mysql", mysqlDSN(config))
+	if err != nil {
 		return nil, err
 	}
-	return db, nil
+	if err := conn.PingContext(ctx); err != nil {
+		conn.Close()
+		return nil, err
+	}
+	return &MySQLClient{
+		conn:   conn,
+		config: config,
+	}, nil
 }
 
-// DSN returns the MySQL Data Source Name suitable for sql.Open.
-func (m *MySQL) DSN() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", m.user, m.pass, m.host, m.port, m.db)
+// Close closes the underlying mysql connection.
+func (c *MySQLClient) Close() error {
+	if c.conn != nil {
+		return c.conn.Close()
+	}
+	return nil
+}
+
+// Conn is an accessor method.
+func (c *MySQLClient) Conn() *sql.DB {
+	return c.conn
+}
+
+// newMySQLConfigFromEnv creates a new mySQLConfig
+// using environment variables. An error will be
+// thrown if any of the environment variables are
+// missing.
+func newMySQLConfigFromEnv() (*mySQLConfig, error) {
+	config := &mySQLConfig{
+		user: os.Getenv(mysqlServiceUserEnv),
+		pass: os.Getenv(mysqlServicePassEnv),
+		db:   os.Getenv(mysqlServiceDBEnv),
+		host: os.Getenv(mysqlServiceHostEnv),
+		port: os.Getenv(mysqlServicePortEnv),
+	}
+	if config.user == "" {
+		return nil, fmt.Errorf("%w: %s", errMissingEnv, mysqlServiceUserEnv)
+	}
+	if config.pass == "" {
+		return nil, fmt.Errorf("%w: %s", errMissingEnv, mysqlServicePassEnv)
+	}
+	if config.db == "" {
+		return nil, fmt.Errorf("%w: %s", errMissingEnv, mysqlServiceDBEnv)
+	}
+	if config.host == "" {
+		return nil, fmt.Errorf("%w: %s", errMissingEnv, mysqlServiceHostEnv)
+	}
+	if config.port == "" {
+		return nil, fmt.Errorf("%w: %s", errMissingEnv, mysqlServicePortEnv)
+	}
+	return config, nil
+}
+
+// mysqlDSN returns the MySQL Data Source Name
+// suitable for sql.Open.
+func mysqlDSN(config *mySQLConfig) string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", config.user, config.pass, config.host, config.port, config.db)
 }

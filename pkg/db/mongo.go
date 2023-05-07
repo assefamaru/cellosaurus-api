@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,54 +11,77 @@ import (
 )
 
 const (
-	mongoServiceHostEnv = "MONGODB_SERVICE_HOST"
-	mongoServicePortEnv = "MONGODB_SERVICE_PORT"
+	mongoServiceHostEnv = "MONGO_SERVICE_HOST"
+	mongoServicePortEnv = "MONGO_SERVICE_PORT"
 )
 
-type Mongo struct {
+// MongoClient is a client interface
+// for managing connections to a
+// MongoDB deployment.
+type MongoClient struct {
+	conn   *mongo.Client
+	config *mongoConfig
+}
+
+type mongoConfig struct {
 	host string
 	port string
 }
 
-// NewMongo returns a new Mongo instance using arguments.
-func NewMongo(host, port string) *Mongo {
-	return &Mongo{
-		host: host,
-		port: port,
-	}
-}
-
-// NewMongoFromEnv returns a new Mongo instance using
-// environment variables.
-func NewMongoFromEnv() (*Mongo, error) {
-	mongoConfig := &Mongo{}
-	errPrefixFormatStr := "missing environment variable: %v"
-	if mongoConfig.host = os.Getenv(mongoServiceHostEnv); mongoConfig.host == "" {
-		return nil, fmt.Errorf(errPrefixFormatStr, mongoServiceHostEnv)
-	}
-	if mongoConfig.port = os.Getenv(mongoServicePortEnv); mongoConfig.port == "" {
-		return nil, fmt.Errorf(errPrefixFormatStr, mongoServicePortEnv)
-	}
-	return mongoConfig, nil
-}
-
-// Connect returns a new mongo connection.
-func (m *Mongo) Connect() (*mongo.Client, context.Context, context.CancelFunc, error) {
-	client, err := mongo.NewClient(options.Client().ApplyURI(m.DSN()))
+// NewMongoClient creates a new MongoClient.
+func NewMongoClient(ctx context.Context) (*MongoClient, error) {
+	config, err := newMongoConfigFromEnv()
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	if err := client.Connect(ctx); err != nil {
-		return nil, ctx, cancel, err
+	conn, err := mongo.NewClient(options.Client().ApplyURI(mongoDSN(config)))
+	if err != nil {
+		return nil, err
 	}
-	if err := client.Ping(ctx, readpref.Primary()); err != nil {
-		return nil, ctx, cancel, err
+	if err := conn.Connect(ctx); err != nil {
+		return nil, err
 	}
-	return client, ctx, cancel, nil
+	if err := conn.Ping(ctx, readpref.Primary()); err != nil {
+		return nil, err
+	}
+	return &MongoClient{
+		conn:   conn,
+		config: config,
+	}, nil
 }
 
-// DSN returns the Mongo Data Source Name connection URI.
-func (m *Mongo) DSN() string {
-	return fmt.Sprintf("mongodb://%s:%s", m.host, m.port)
+// Close disconnects the underlying client connection pool.
+func (c *MongoClient) Close(ctx context.Context) error {
+	if c.conn != nil {
+		return c.conn.Disconnect(ctx)
+	}
+	return nil
+}
+
+// Conn is an accessor method.
+func (c *MongoClient) Conn() *mongo.Client {
+	return c.conn
+}
+
+// newMongoConfigFromEnv creates a new mongoConfig
+// using environment variables. An error will be
+// thrown if any of the environment variables are
+// missing.
+func newMongoConfigFromEnv() (*mongoConfig, error) {
+	config := &mongoConfig{
+		host: os.Getenv(mongoServiceHostEnv),
+		port: os.Getenv(mongoServicePortEnv),
+	}
+	if config.host == "" {
+		return nil, fmt.Errorf("%w: %s", errMissingEnv, mongoServiceHostEnv)
+	}
+	if config.port == "" {
+		return nil, fmt.Errorf("%w: %s", errMissingEnv, mongoServicePortEnv)
+	}
+	return config, nil
+}
+
+// mongoDSN returns the Mongo Data Source Name connection URI.
+func mongoDSN(config *mongoConfig) string {
+	return fmt.Sprintf("mongodb://%s:%s", config.host, config.port)
 }

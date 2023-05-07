@@ -3,4 +3,4 @@
 ROOT="$(dirname "$0")"
 cd "$ROOT/.."
 
-go run cmd/api/main.go
+go run cmd/server/main.go

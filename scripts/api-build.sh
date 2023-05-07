@@ -7,7 +7,7 @@ rm -rf bin
 
 package=$1
 if [[ -z "$package" ]]; then
-  package="cmd/api/main.go"
+  package="cmd/server/main.go"
 fi
 
 platforms=("linux/amd64" "linux/386" "windows/amd64" "windows/386" "darwin/amd64")
