@@ -1,3 +1,5 @@
+# Archived
+
 The [Cellosaurus](https://github.com/calipho-sib/cellosaurus) is a knowledge
 resource on cell lines. It attempts to describe all cell lines used in
 biomedical research. This API aims to make the data provided by Cellosaurus as
@@ -87,13 +89,13 @@ below:
 git clone https://github.com/assefamaru/cellosaurus-api
 ```
 
-2. Run provision script:
+1. Run provision script:
 
 ```bash
 ./scripts/provision.sh
 ```
 
-3. Export environment variables:
+1. Export environment variables:
 
 ```bash
 export MYSQL_SERVICE_USER=xyz  # the username you used in step 3
@@ -104,13 +106,13 @@ export MYSQL_SERVICE_PORT=xyz  # eg. 3306
 export PORT=xyz                # eg. 8080
 ```
 
-4. Run the locally built API inside bin directory:
+1. Run the locally built API inside bin directory:
 
 ```bash
 ./bin/cellosaurus-api-<os>-<platform>
 ```
 
-5. Access the locally running API:
+1. Access the locally running API:
 
 ```bash
 curl localhost:8080/api/v42/
