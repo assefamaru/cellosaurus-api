@@ -7,5 +7,5 @@ written at a time when Cellosaurus lacked a proper API. This is now obsolete. As
 of Sept 20, 2022, Cellosaurus has released an
 [official API](https://api.cellosaurus.org).
 
-Old documentation will be available in [`docs/archived.md`](/docs/archived.md)
+Old documentation is available in [`docs/archived.md`](/docs/archived.md)
 for posterity.
