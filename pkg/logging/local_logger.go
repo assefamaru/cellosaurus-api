@@ -61,6 +61,6 @@ func logBySeverity(severity Severity, format string, a ...any) {
 		LogSentry(fmt.Errorf(format, a...))
 	}
 	prefix := fmt.Sprintf("%-8v ", severity)
-	logger := log.New(os.Stderr, prefix, log.Ldate|log.Ltime|log.Lshortfile)
+	logger := log.New(os.Stderr, prefix, log.Ldate|log.Ltime)
 	logger.Printf(format, a...)
 }
