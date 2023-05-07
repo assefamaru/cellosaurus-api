@@ -20,10 +20,10 @@ All responses are in `json` format.
 
 The following previous versions are also available for the live API:
 
-| Version | Base URL | | :-----: |
-:------------------------------------------------------------- | | `41` |
-[`https://api.cellosaur.us/v41`](https://api.cellosaur.us/v41) | | `40` |
-[`https://api.cellosaur.us/v40`](https://api.cellosaur.us/v40) |
+| Version | Base URL                                                       |
+| :-----: | :------------------------------------------------------------- |
+|  `41`   | [`https://api.cellosaur.us/v41`](https://api.cellosaur.us/v41) |
+|  `40`   | [`https://api.cellosaur.us/v40`](https://api.cellosaur.us/v40) |
 
 See [Tags](https://github.com/assefamaru/cellosaurus-api/tags) to build any
 previous versions locally.
@@ -32,22 +32,18 @@ previous versions locally.
 
 The following endpoints are currently supported:
 
-| Method | Endpoint | Parameter(s) | Example | | :----: | :--------------------
-| :---------------- |
-:---------------------------------------------------------- | | GET | **/cells**
-| `page`, `perPage` | <https://api.cellosaur.us/v41/cells?page=8&perPage=10> | |
-GET | **/cell-lines** | `page`, `perPage` |
-<https://api.cellosaur.us/v41/cell-lines?page=3&perPage=20> | | GET |
-**/cells/{id}** | | <https://api.cellosaur.us/v41/cells/mcf-7> | | GET |
-**/cell-lines/{id}** | | <https://api.cellosaur.us/v41/cell-lines/mcf-7> | | GET
-| **/refs** | `page`, `perPage` |
-<https://api.cellosaur.us/v41/refs?page=1&perPage=10> | | GET | **/references**
-| `page`, `perPage` |
-<https://api.cellosaur.us/v41/references?page=1&perPage=10> | | GET | **/xrefs**
-| | <https://api.cellosaur.us/v41/xrefs> | | GET | **/cross-references** | |
-<https://api.cellosaur.us/v41/cross-references> | | GET | **/stats** | |
-<https://api.cellosaur.us/v41/stats> | | GET | **/statistics** | |
-<https://api.cellosaur.us/v41/statistics> |
+| Method | Endpoint              | Parameter(s)      | Example                                                     |
+| :----: | :-------------------- | :---------------- | :---------------------------------------------------------- |
+|  GET   | **/cells**            | `page`, `perPage` | <https://api.cellosaur.us/v41/cells?page=8&perPage=10>      |
+|  GET   | **/cell-lines**       | `page`, `perPage` | <https://api.cellosaur.us/v41/cell-lines?page=3&perPage=20> |
+|  GET   | **/cells/{id}**       |                   | <https://api.cellosaur.us/v41/cells/mcf-7>                  |
+|  GET   | **/cell-lines/{id}**  |                   | <https://api.cellosaur.us/v41/cell-lines/mcf-7>             |
+|  GET   | **/refs**             | `page`, `perPage` | <https://api.cellosaur.us/v41/refs?page=1&perPage=10>       |
+|  GET   | **/references**       | `page`, `perPage` | <https://api.cellosaur.us/v41/references?page=1&perPage=10> |
+|  GET   | **/xrefs**            |                   | <https://api.cellosaur.us/v41/xrefs>                        |
+|  GET   | **/cross-references** |                   | <https://api.cellosaur.us/v41/cross-references>             |
+|  GET   | **/stats**            |                   | <https://api.cellosaur.us/v41/stats>                        |
+|  GET   | **/statistics**       |                   | <https://api.cellosaur.us/v41/statistics>                   |
 
 Endpoints should always be prefixed with the current version number when making
 requests.
@@ -55,8 +51,10 @@ requests.
 Parameters are not required in request URLs. When parameters are not included,
 they are set to their default values:
 
-| Parameter | Default Value | | :-------- | :-----------: | | `page` | `1` | |
-`perPage` | `10` |
+| Parameter | Default Value |
+| :-------- | :-----------: |
+| `page`    |      `1`      |
+| `perPage` |     `10`      |
 
 Endpoints that contain `page` and `perPage` parameters will have a `meta` field
 in their response containing pagination information, as well as the total number
