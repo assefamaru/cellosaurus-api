@@ -1,6 +1,6 @@
 # cellosaurus-api
 
-[![Continuous Integration](https://github.com/assefamaru/cellosaurus-api/actions/workflows/ci.yml/badge.svg)](https://github.com/assefamaru/cellosaurus-api/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/assefamaru/cellosaurus-api/actions/workflows/ci.yml/badge.svg)](https://github.com/assefamaru/cellosaurus-api/actions/workflows/ci.yml)[![Go Reference](https://pkg.go.dev/badge/github.com/assefamaru/cellosaurus-api.svg)](https://pkg.go.dev/github.com/assefamaru/cellosaurus-api)
 
 This is an unofficial API for the [`Cellosaurus`](https://www.cellosaurus.org),
 written at a time when Cellosaurus lacked a proper API. This is now obsolete. As
